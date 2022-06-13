@@ -1,0 +1,3 @@
+MATCH (n1)-[:DEPICTS]->(n2), (n3)-[:HAS*]->(n2) WHERE n1.marine_growth > 0.5 RETURN n1, n2, n3 LIMIT 2500;
+MATCH (n1:Image) -[:DEPICTS]-> (n2), (ship:Ship)-[:HAS*]->(n2) WHERE n1.marine_growth > 0.9 RETURN ship.name, count(n1) as mg_count ORDER BY mg_count DESC 
+MATCH (n1:Image) WHERE n1.id = "1693.90" SET n1.image_url = "localhost:8800/t/" + replace(n1.thumbnail, "./data/thumbnails/", "") RETURN n1
