@@ -2,6 +2,9 @@ import py2neo
 from py2neo import Node, Relationship
 from py2neo.matching import NodeMatcher
 
+class EntryDoesExistExeption(Exception):
+    pass
+
 def find_node(*args, **kwargs):
     node_matcher = NodeMatcher(liaci_graph())
     results = node_matcher.match(*args, **kwargs)

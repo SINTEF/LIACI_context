@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch app",
+            "cwd": "${workspaceFolder}",
+            "python": "/usr/bin/python",
+            "type": "python",
+            "request": "launch",
+            "program": "app.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "context_main",
             "python": "/usr/bin/python",
             "type": "python",

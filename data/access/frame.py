@@ -1,7 +1,5 @@
-from xml.dom import ValidationErr
-
 from cv2 import threshold
-from data.datastore import find_node, liaci_graph, neo4j_transaction
+from data.datastore import EntryDoesExistExeption, find_node, liaci_graph, neo4j_transaction
 from data.inspection.image_node import ImageNode
 from data.vismodel.LiShip import LiShip
 from data.inspection.LiInspection import LiInspection
@@ -10,14 +8,20 @@ from py2neo.matching import NodeMatcher
 
 import py2neo
 
-
+def merge(frame: ImageNode, **kwargs):
+    frame_node = find_node(frame.label, id=frame.id)
+    if not frame_node:
+        create(frame, **kwargs)
+    with neo4j_transaction() as tx:
+        frame_node = py2neo.Node(frame.label, **frame.__dict__)
+        tx.merge(frame_node)
 
 def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.9):
     frame_node = find_node(frame.label, id=frame.id)
 
     if frame_node:
         if fail_on_exists:
-            raise ValidationErr("Frame already exists!")
+            raise EntryDoesExistExeption("Frame already exists!")
         else:
             return frame_node
 
@@ -57,7 +61,7 @@ def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.
 
         return frame_node
 
-def add_similarity(frame_node_1, frame_node_2):
+def add_similarity(frame_node_1, frame_node_2, distance):
     with neo4j_transaction() as tx:
-        relation = py2neo.Relationship(frame_node_1, "SIMILAR_TO", frame_node_2)
+        relation = py2neo.Relationship(frame_node_1, "SIMILAR_TO", frame_node_2, distance=distance)
         tx.create(relation)

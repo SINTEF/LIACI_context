@@ -1,6 +1,6 @@
 opencv-python==4.5.5.64
 onnxruntime-gpu==1.11.1
-Pillow==9.1.0
+Pillow==9.1.1
 ass==0.5.2
 pandas==1.4.2
 networkx==2.8
@@ -16,3 +16,5 @@ scikit-image==0.19.2
 pycocotools==2.0.4
 neo4j==4.4.4
 py2neo==2021.2.3
+flask-cors==3.0.10
+imreg_dft==2.0.0

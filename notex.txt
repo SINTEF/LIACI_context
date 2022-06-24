@@ -1,0 +1,1 @@
+Image node addon for neo4j Browser: https://github.com/graphadvantage/neo4j-browser-images 

@@ -1,13 +1,13 @@
 from data.inspection.LiInspection import LiInspection
 from py2neo import Node, Relationship
 
-from data.datastore import find_node, neo4j_transaction
+from data.datastore import EntryDoesExistExeption, find_node, neo4j_transaction
 
 def create(inspection: LiInspection, fail_on_exists = False) -> Node:
     inspection_node = find_node(inspection.label, id=inspection.id)
     if inspection_node:
         if fail_on_exists:
-            raise ValueError("Inspection exists already.")
+            raise EntryDoesExistExeption("Inspection exists already.")
         else:
             return inspection_node
 

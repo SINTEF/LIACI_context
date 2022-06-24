@@ -1,5 +1,4 @@
-from xml.dom import ValidationErr
-from data.datastore import find_node, liaci_graph, neo4j_transaction
+from data.datastore import EntryDoesExistExeption, find_node, liaci_graph, neo4j_transaction
 from data.vismodel.LiShip import LiShip
 from py2neo.matching import NodeMatcher
 
@@ -12,7 +11,7 @@ def create(ship: LiShip, fail_on_exists = False):
     ship_node = find_node(ship.label, imo=ship.imo, id=ship.id)
     if ship_node:
         if fail_on_exists:
-            raise ValidationErr("Ship already exists!")
+            raise EntryDoesExistExeption("Ship already exists!")
         else:
             return ship_node
     with neo4j_transaction() as tx:
