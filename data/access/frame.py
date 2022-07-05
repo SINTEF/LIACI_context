@@ -1,6 +1,6 @@
 from cv2 import threshold
 from data.datastore import EntryDoesExistExeption, find_node, liaci_graph, neo4j_transaction
-from data.inspection.image_node import ImageNode
+from data.inspection.image_node import ImageNode, MosaicNode
 from data.vismodel.LiShip import LiShip
 from data.inspection.LiInspection import LiInspection
 from py2neo.matching import NodeMatcher
@@ -15,6 +15,21 @@ def merge(frame: ImageNode, **kwargs):
     with neo4j_transaction() as tx:
         frame_node = py2neo.Node(frame.label, **frame.__dict__)
         tx.merge(frame_node)
+
+def merge_mosaic(mosaic: py2neo.Node):
+    with neo4j_transaction() as tx:
+        tx.graph.push(mosaic)
+
+def delete_mosaic(mosaic_node: py2neo.Node):
+    with neo4j_transaction() as tx:
+        tx.delete(mosaic_node)
+def create_mosaic(mosaic: MosaicNode):
+    mosaic_node = find_node(mosaic.label, id = mosaic.id)
+    if not mosaic_node:
+        with neo4j_transaction() as tx:
+            mosaic_node = py2neo.Node(mosaic.label, **mosaic.__dict__)
+            tx.create(mosaic_node)
+    return mosaic_node
 
 def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.9):
     frame_node = find_node(frame.label, id=frame.id)
@@ -61,7 +76,13 @@ def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.
 
         return frame_node
 
-def add_similarity(frame_node_1, frame_node_2, distance):
+def add_similarity(frame_node_1, frame_node_2, distance, visual = False):
     with neo4j_transaction() as tx:
-        relation = py2neo.Relationship(frame_node_1, "SIMILAR_TO", frame_node_2, distance=distance)
+        relationtype = "VISUALLY_SIMILAR_TO" if visual else "SIMILAR_TO"
+        relation = py2neo.Relationship(frame_node_1, relationtype, frame_node_2, distance=distance)
+        tx.create(relation)
+
+def add_homography(frame_node, mosaic_node, homography):
+    with neo4j_transaction() as tx:
+        relation = py2neo.Relationship(frame_node, "IN_MOSAIC", mosaic_node, homography=[float(x) for l in homography for x in l])
         tx.create(relation)

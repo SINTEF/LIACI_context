@@ -1,4 +1,6 @@
 assets/thumbnails/*.jpg
+assets/thumb/*.jpg
+assets/mosaics/*.jpg
 **/__pycache__/
 data/graph/cache-directory/2029240f6d1128be89ddc32729463129
 pipeline/computer_vision/modelzoo

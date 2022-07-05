@@ -4,6 +4,7 @@ import dash
 import dash_cytoscape as cyto
 from dash import dcc, Input, Output, State, html
 import py2neo
+from py2neo import NodeMatcher, Graph, RelationshipMatcher
 
 import networkx as nx
 
@@ -11,7 +12,7 @@ from data.datastore import liaci_graph, neo4j_transaction
 from data.access.query import get_labels
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARN)
 
 app = dash.Dash(__name__)
 
@@ -58,6 +59,8 @@ def redact_json_data(json_data, positions):
         if 'classes' in e['data']: e['classes'] = e['data']['classes']
     return json_data
 
+
+
 @app.callback(
     Output(component_id='gr', component_property='elements'),
     Input(component_id='submit-btn', component_property='n_clicks'),
@@ -81,22 +84,29 @@ def update_graph(_, input_value):
 
     with neo4j_transaction() as tx:
         query = f"""MATCH (fic:Image) {where_clause} WITH fic LIMIT 200 MATCH (fic) -[r]-> (n2) RETURN fic, n2"""
-        query = f"""MATCH (fic:Image) {where_clause} WITH fic LIMIT 1000 MATCH (ship:Ship) -[:HAS*]-> (part) <-[:DEPICTS]- (fic) -[:SIMILAR_TO]-> (n2) RETURN ship, part, fic, n2 LIMIT 1000"""
+        query = f"""MATCH (fic:Image) {where_clause} WITH fic LIMIT 100 MATCH (ship:Ship) -[:HAS*]-> (part) <-[:DEPICTS]- (fic:Image) -[r]-> (n2:Image) RETURN ship, part, fic, n2, r LIMIT 100"""
+
+        query_image_nodes = f"MATCH (i:Image) WHERE {where_clause} with i order by i.id asc limit 100"
+
+
+
         result = tx.run(query)
+
 
         
         print("got result from database, loading result... ")
-        for (ship, part, n1, n2) in result:
+        for (ship, part, n1, n2, r) in result:
             relcount += 1
             for n in [ship, part, n1, n2]:
                 if not n.identity in nodes_indexes:
                     nodes_indexes.add(n.identity)
-                    graph.add_node(n.identity, label=n['name'] if 'name' in n else f'{n._labels}', image_path='./assets/thumbnails/' + n['thumbnail'] if 'thumbnail' in n else '', classes='frame' if 'Image' in n._labels else 'ship' if 'Ship' in n._labels else 'ship_part')
+                    graph.add_node(n.identity, label=n['name'] if 'name' in n else f'{n._labels}', image_path='./assets/thumb/' + n['thumbnail'] if 'thumbnail' in n else '', classes='frame' if 'Image' in n._labels else 'ship' if 'Ship' in n._labels else 'ship_part')
                     #nodes.append({'data':{'id': n.identity, 'label': f'{n.labels}', 'image_path': './assets/thumbnails/' + n['thumbnail'] if 'thumbnail' in n else ''}, 'classes': 'frame' if 'Image' in n._labels else 'finding'})
 
-            is_similarity = 'Image' in n1._labels and 'Image' in n2._labels
+            is_similarity = "SIMILAR_TO" in r.types()
+            is_visual_similarity = "VISUALLY_SIMILAR_TO" in r.types()
             traction = 1/20 if is_similarity else 1/100
-            graph.add_edge(n1.identity, n2.identity, traction=1/50, classes='dashed' if is_similarity else '')
+            graph.add_edge(n1.identity, n2.identity, traction=1/50, classes='dashed' if is_similarity else 'dotted' if is_visual_similarity else '')
             graph.add_edge(ship.identity, part.identity, traction=1/500, classes='')
             graph.add_edge(n1.identity, part.identity, traction=1/100, classes='')
             #rels.append({'data':{'source': n1.identity, 'target': n2.identity}})
@@ -238,6 +248,12 @@ app.layout = html.Div([
                     'selector': '.dashed',
                     'style': {
                         'line-style': 'dashed',
+                    }
+                },
+                {
+                    'selector': '.dotted',
+                    'style': {
+                        'line-style': 'dotted',
                     }
                 },
                 {

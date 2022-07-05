@@ -1,4 +1,9 @@
 
+from pipeline.similarity_pipeline import do_similarity
+
+do_similarity()
+exit(1)
+
 from pipeline.pipeline import Pipeline
 from pipeline.video_input.file_input import VideoFileInput
 import data.datastore as datastore

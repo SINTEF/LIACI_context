@@ -1,0 +1,2 @@
+It is highly recommended to use another dimensionality reduction method (e.g. PCA for dense data or TruncatedSVD for sparse data) to reduce the number of dimensions to a reasonable amount (e.g. 50) if the number of features is very high. This will suppress some noise and speed up the computation of pairwise distances between samples. For more tips see Laurens van der Maaten’s FAQ [2].
+- TSNE documentation on https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html 

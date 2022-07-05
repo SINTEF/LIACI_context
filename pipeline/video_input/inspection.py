@@ -86,7 +86,7 @@ class Inspection:
         inspection = LiInspection(imo, data['inspection_date'], inspection_id)
 
         
-        ship_node = ship_access.create(ship, fail_on_exists=fail_on_exists)
+        ship_node = ship_access.create(ship)
 
         inspection_node = inspection_access.create(inspection, fail_on_exists=fail_on_exists) 
         return ship_node, inspection_node
@@ -151,10 +151,6 @@ class VideoInspection(Inspection):
 
         self.telemetry = read_telemetry_data(self.ass_file, self.video_length)
         print(len(self.telemetry))
-
-        self.classifier = LIACi_classifier()
-        self.segmenter = LIACi_segmenter()
-        self.detector = LIACi_detector()
     
     def __iter__(self):
         self.current_frame = 0
@@ -165,7 +161,7 @@ class VideoInspection(Inspection):
     def __next__(self):
         if self.current_frame > self.video_length:
             raise StopIteration()
-        while self.current_frame % 30 != 0:
+        while self.current_frame % self.frame_step != 0:
             _ = next(self.telemetry_iterator)
             ret, frame = self.cv_capture.read()
             self.current_frame += 1
@@ -176,18 +172,10 @@ class VideoInspection(Inspection):
         if not ret:
             return None
         
-        start = time.perf_counter()
-        classification = self.classifier.classify_dict(frame)
-        detection = self.detector.detect(frame)
-        segmentation = self.segmenter.segment_unet(frame)
-        inftime = time.perf_counter() - start
 
         
         data = {
             'frame': frame,
-            'classes': classification,
-            'objects': {d['tagName']: d['probability'] for d in detection},
-            'segmentation': segmentation,
             'telemetry': json.loads(telemetry[1].to_json())
         }
         return data

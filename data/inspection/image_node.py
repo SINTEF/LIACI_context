@@ -1,5 +1,12 @@
 from typing import List, Optional
 
+class MosaicNode(object):
+    def __init__(self, id) -> None:
+        self.label = "Mosaic"
+        self.id = id
+        pass
+    
+
 class ImageNode(object):
     def __init__(self, id=None, imo=None, date=None, visCode=None,
                  img_filename=None, video_id=None, framenumber=None, 

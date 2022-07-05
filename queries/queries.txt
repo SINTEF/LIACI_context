@@ -16,3 +16,7 @@ MATCH (fic) -[r: DEPICTS]-> (n2) RETURN fic, r, n2
 
 MATCH (fic:Image) WHERE fic.propeller >0.9 and fic.marine_growth > .9 WITH fic
 MATCH (fic) -[r:DEPICTS]-> (n2) RETURN fic, r, n2 LIMIT 200
+
+
+MATCH (n) -[:HAS_FRAME]-> (f) WITH n, count(f) as f MATCH (n) where f < 10 DETACH DELETE n
+MATCH (i:Inspection) WITH i, SIZE((i) -[:HAS_FRAME]-> ()) as nfr MATCH (i) WHERE nfr < 10 DETACH DELETE i
