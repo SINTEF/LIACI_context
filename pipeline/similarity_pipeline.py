@@ -5,7 +5,7 @@ import py2neo
 from sklearn import neighbors
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from data.datastore import neo4j_transaction
+from data.access.datastore import neo4j_transaction
 from img2vec_pytorch import Img2Vec
 from scipy.spatial import KDTree
 from PIL import Image
@@ -40,6 +40,8 @@ def do_similarity():
         print(f"Found {num_nodes} nodes, quering all nodes...")
         result = tx.run(query)
         print("done.")
+        print()
+        print()
     # For each node, calculate vec
         for index, (n, inspection) in enumerate(result):
     #   Telemetry stuff
@@ -47,10 +49,10 @@ def do_similarity():
                 sanitize_infitinty(n[field]) for field in 'Depth Heading Pitch Roll framenumber anode bilge_keel corrosion defect marine_growth over_board_valve paint_peel propeller sea_chest_grating'.split()
             ]
     #   (Image2Vec)
-            img = Image.open(f"assets/thumb/{n['id']}.jpg")
-            imvec = im2vec.get_vec(img, tensor=False)
+            with Image.open(f"data/imgs/frames/{n['id']}.jpg") as img:
+                imvec = im2vec.get_vec(img, tensor=False)
 
-            print(f"{index} / {num_nodes} ({index * 100 / num_nodes:.2f}%)\r", end="")
+            print(f"\r{index} / {num_nodes} ({index * 100 / num_nodes:.2f}%)", end="")
 
             py2neonodes.append(n)
             inspection_ids.append(inspection)
@@ -62,6 +64,9 @@ def do_similarity():
             vecs[inspection].append(vec)
             imvecs.append(imvec)
 
+        print()
+        print()
+        print("done.")
     # TSNE
     vec_representations = {}
     for inspection, vectors in vecs.items():
@@ -87,6 +92,8 @@ def do_similarity():
 
     # Neighbor for each node
     print("searching for neighbors and adding relaitons...")
+    print()
+    print()
     for i, node in enumerate(py2neonodes):
         inspection = inspection_ids[i]
         id_in_inspection_list = id_in_node_list_to_id_in_inspectioin_list[i]
@@ -109,7 +116,9 @@ def do_similarity():
                 frame_access.add_similarity(node, neighbor, float(distance), visual=True)
 
         
-        print(f"{i} / {len(py2neonodes)} ({i * 100 / len(py2neonodes):.2f}%)\r", end="")
+        print(f"\r{i} / {len(py2neonodes)} ({i * 100 / len(py2neonodes):.2f}%)", end="")
+    print()
+    print()
     print("Completed!")
         
 
