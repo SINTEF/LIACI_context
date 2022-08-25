@@ -1,0 +1,11 @@
+pandas==1.4.2
+networkx==2.8
+py2neo==2021.2.3
+plotly==5.7.0
+dash-cytoscape==0.3.0
+dash==2.3.1
+dash-html-components==2.0.0
+neo4j==4.4.4
+py2neo==2021.2.3
+flask-cors==3.0.10
+uvicorn==0.18.3

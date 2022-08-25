@@ -1,11 +1,7 @@
 import pickle
-import dataclasses
-import sys
-from data.access.datastore import neo4j_transaction
+from neo4j_datastore import neo4j_transaction
 from dataclasses import dataclass
 from dash import Input, Output
-import json
-import logging
 
 @dataclass
 class FilterOptions():

@@ -1,13 +1,6 @@
-from atexit import register
-from dataclasses import replace
-from platform import node
 import dash
-import dash_cytoscape as cyto
-from dash import dcc, Input, Output, State, html
-import py2neo
-from py2neo import NodeMatcher, Graph, RelationshipMatcher
+from dash import dcc, Input, Output, html
 
-import networkx as nx
 import views.graph as graph_view
 import views.histograms as hist_view
 import views.tables as tables_view
@@ -72,6 +65,6 @@ for site in sites:
 
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True, port='8051')
+#if __name__ == '__main__':
+app.run_server('0.0.0.0', debug=False, port='8051')
 
