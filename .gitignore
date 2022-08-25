@@ -3,3 +3,5 @@
 data/graph/cache-directory/2029240f6d1128be89ddc32729463129
 pipeline/computer_vision/modelzoo
 data/imgs/frames/*.jpg
+pipeline/image_bw_vectors_pickle.pyp
+pipeline/image_vectors_pickle.pyp
