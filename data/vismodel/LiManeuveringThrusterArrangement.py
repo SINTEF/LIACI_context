@@ -1,8 +1,8 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiManeuveringThrusterArrangement():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "440"
-        self.name = "Maneuvering thruster arrangement"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='440', init=False)
+    name : str = field(default='Maneuvering thruster arrangement', init=False)

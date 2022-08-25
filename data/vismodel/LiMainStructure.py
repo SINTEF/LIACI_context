@@ -1,28 +1,22 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiMainStructure():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "100"
-        self.name = "Main Structure"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='100', init=False)
+    name : str = field(default='Main Structure', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiCoating():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "102.1"
-        self.name = "Coating, Marine Growth and Anti Fouling"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='102.1', init=False)
+    name : str = field(default='Coating, Marine Growth and Anti Fouling', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiAnodes():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "102.2"
-        self.name = "Anodes"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='102.2', init=False)
+    name : str = field(default='Anodes', init=False)

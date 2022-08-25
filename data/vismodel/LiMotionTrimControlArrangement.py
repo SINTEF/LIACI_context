@@ -1,28 +1,22 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiMotionTrimControlArrangement():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "460"
-        self.name = "Motion and Trim Control Arrangement"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='460', init=False)
+    name : str = field(default='Motion and Trim Control Arrangement', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiStabilisingFins():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "464.1"
-        self.name = "Stabilising Fins"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='464.1', init=False)
+    name : str = field(default='Stabilising Fins', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiBilgeKeels():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "465"
-        self.name = "Bilge Keels"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='465', init=False)
+    name : str = field(default='Bilge Keels', init=False)

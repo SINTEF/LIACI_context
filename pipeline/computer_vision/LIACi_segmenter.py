@@ -20,15 +20,15 @@ class LIACi_segmenter():
     """Class for semantic segmentation
     """
     CONF_THRESHOLD = 0.5  # Confidence threshold
-    MASK_THRESHOLD = 0.5  # Mask threshold
+    MASK_THRESHOLD = 0.85  # Mask threshold
 
     def __init__(self, image=None,  prob_threshold=0.15, max_detections = 20):
         """Initialize the class
         """
 
         # labels and model
-        MODEL_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_segmenter/unet_mobilenetv2_10.onnx'
-        LABELS_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_segmenter/labels_unet_mobilenetv2_10.txt'
+        MODEL_FILENAME = 'computer_vision/modelzoo/LIACi_segmenter/unet_mobilenetv2_10.onnx'
+        LABELS_FILENAME = 'computer_vision/modelzoo/LIACi_segmenter/labels_unet_mobilenetv2_10.txt'
 
         self.prob_threshold = prob_threshold
         self.max_detections = max_detections
@@ -57,6 +57,10 @@ class LIACi_segmenter():
         # onnxruntime inference 
         self.sess = rt.InferenceSession(MODEL_FILENAME, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 
+    def get_color_for_label(self, label):
+        label_to_color = {l: i for i, l in enumerate(self.labels)}
+        return self.COLORS[label_to_color[label]]
+    
 
     # Draw the predicted bounding box, colorize and show the mask on the image
     def draw(self, boxes, masks, scores, labels):
@@ -148,7 +152,7 @@ class LIACi_segmenter():
         # postprocess onnx output
         masks = np.squeeze(out)
         labels = range(masks.shape[2])
-        counts = {self.labels[i]: (np.count_nonzero(masks[:,:,i] > 0.5) / (h_n * w_n)) for i in labels}
+        counts = {self.labels[i]: (np.count_nonzero(masks[:,:,i] > self.MASK_THRESHOLD) / (h_n * w_n)) for i in labels}
         return counts
 
     def segment_unet(self, frame = None):
@@ -181,7 +185,7 @@ class LIACi_segmenter():
             masks_full_res.append(mask_th)
 
         # Extract the bounding box and mask for each of the detected objects
-        self.draw(None, masks_full_res, None, labels)
+        #self.draw(None, masks_full_res, None, labels)
 
         return [
             {'probability': None,

@@ -1,5 +1,5 @@
 from cv2 import threshold
-from data.datastore import EntryDoesExistExeption, find_node, liaci_graph, neo4j_transaction
+from data.access.datastore import EntryDoesExistExeption, find_classification_node, find_node, liaci_graph, neo4j_transaction
 from data.inspection.image_node import ImageNode, MosaicNode
 from data.vismodel.LiShip import LiShip
 from data.inspection.LiInspection import LiInspection
@@ -16,10 +16,15 @@ def merge(frame: ImageNode, **kwargs):
         frame_node = py2neo.Node(frame.label, **frame.__dict__)
         tx.merge(frame_node)
 
-def merge_mosaic(mosaic: py2neo.Node):
+def merge_node(mosaic: py2neo.Node):
     with neo4j_transaction() as tx:
         tx.graph.push(mosaic)
 
+def merge_nodes(mosaics):
+    with neo4j_transaction() as tx:
+        for mosaic in mosaics:
+            tx.graph.push(mosaic)
+        
 def delete_mosaic(mosaic_node: py2neo.Node):
     with neo4j_transaction() as tx:
         tx.delete(mosaic_node)
@@ -56,11 +61,19 @@ def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.
         'bilge_keel': '465'
     }
 
+    """
+    @TODO:
+        Classification nodes dont have imo numbers anymore, this is due to the fact, that we want to
+        remove redundant information from the KG and use the relationships. Need to create new method
+        to query for the right Classification node base on its relation to a ship with te corresponding
+        imo number.
+    """
     classlabel_to_node = {
-        k: find_node("Classification", imo=frame.imo, visCode=v)
+        k: find_classification_node(imo=frame.imo, visCode=v)
         for k, v in classlabel_to_vis.items()
     }
 
+    frame.set_neo4j_properties()
     with neo4j_transaction() as tx:
         frame_node = py2neo.Node(frame.label, **frame.__dict__) 
         tx.create(frame_node)

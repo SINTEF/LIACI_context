@@ -1,8 +1,8 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiAllUnderwaterAppendages():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "173.1"
-        self.name = "All other underwater appendages"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='173.1', init=False)
+    name : str = field(default='All other underwater appendages', init=False)

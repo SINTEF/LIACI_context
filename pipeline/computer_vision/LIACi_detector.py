@@ -27,8 +27,8 @@ class LIACi_detector():
         """
 
         # labels and model
-        MODEL_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_detector/model.onnx'
-        LABELS_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_detector/labels.txt'
+        MODEL_FILENAME = 'computer_vision/modelzoo/LIACi_detector/model.onnx'
+        LABELS_FILENAME = 'computer_vision/modelzoo/LIACi_detector/labels.txt'
 
         self.prob_threshold = prob_threshold
         self.max_detections = max_detections
@@ -208,7 +208,7 @@ class LIACi_detector():
         outputs = self.session.run(None, {input_name: blob})
         end = time.perf_counter()
         inference_time = end - start
-        # print("onnx detection: "+str(inference_time))
+        # nx detection: "+str(inference_time))
               
         scores = self.postprocess(outputs, input_name)
         

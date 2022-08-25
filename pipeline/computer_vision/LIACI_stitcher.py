@@ -4,10 +4,11 @@ Created on Sun May 28 11:33:02 2022
 
 @author: marynaw
 """
+from math import prod
 import imreg_dft as ird
 import numpy as np
 import cv2
-from pipeline.computer_vision.LIACi_segmenter import LIACi_segmenter
+from computer_vision.LIACi_segmenter import LIACi_segmenter
 
 from pycocotools import mask
 
@@ -33,8 +34,8 @@ class Mosaic:
 
         self.process_first_frame(first_image)
 
-        self.output_img = np.zeros(shape=(int(output_height_times * first_image.shape[0]), int(
-            output_width_times*first_image.shape[1]), first_image.shape[2]))
+        self.output_img = np.full((int(output_height_times * first_image.shape[0]), int(
+            output_width_times*first_image.shape[1]), first_image.shape[2]), 255.)
 
         # offset
         self.w_offset = int(self.output_img.shape[0]/2 - first_image.shape[0]/2)
@@ -212,9 +213,9 @@ class Mosaic:
             cv2.imshow('warped_img',  warped_img/255.)
 
         self.output_img[warped_img > 0] = warped_img[warped_img > 0]
-        output_temp = np.copy(self.output_img)
-        output_temp = self.draw_border(output_temp, transformed_corners, color=(0, 0, 255))
         if self.visualize:
+            output_temp = np.copy(self.output_img)
+            output_temp = self.draw_border(output_temp, transformed_corners, color=(0, 0, 255))
             cv2.imshow('output',  output_temp/255.)
 
         return self.output_img
@@ -262,6 +263,9 @@ class Mosaic:
         return image
 
 
+def remove_black_borders(image):
+    y_nonzero, x_nonzero, _ = np.where(image != 255.)
+    return image[np.min(y_nonzero):np.max(y_nonzero), np.min(x_nonzero):np.max(x_nonzero)]
 
 class LIACI_Stitcher():
     """
@@ -281,8 +285,32 @@ class LIACI_Stitcher():
     def get_dimensions(self):
         return self.video_mosaic.output_img.shape[0], self.video_mosaic.output_img.shape[1]
 
+    def get_size_increase(self):
+        pixels_not_black = np.any(self.video_mosaic.output_img != [255.,255.,255.], axis=-1).sum()
+        pixels_init = prod(self.get_dimensions()) / 25
+        return pixels_not_black / pixels_init
+
+
+    def store_mosaic_seg(self, path):
+        x_dim, y_dim = self.get_dimensions()
+        diagonal = np.zeros((x_dim, y_dim), np.uint8)
+        for x, y in np.ndindex(diagonal.shape):
+            if (x+ y) % 4 == 0:
+                diagonal[x][y] = 1
+
+        output_image = self.video_mosaic.output_img
+        for label, mask in self.masks.items():
+            seg_output_overlay = np.zeros(shape=(x_dim, y_dim, 3))
+            seg_output_overlay[mask > 0] = self.segmenter.get_color_for_label(label)
+            if label == "ship_hull":
+                seg_output_overlay[diagonal == 0] = (0,0,0)
+            output_image = cv2.addWeighted(output_image,1,seg_output_overlay,0.3,0)
+
+        cv2.imwrite(path, remove_black_borders(output_image))
+
     def store_mosaic(self, path):
-        cv2.imwrite(path, self.video_mosaic.output_img)
+        output_image = self.video_mosaic.output_img
+        cv2.imwrite(path, output_image)
 
     def get_coco(self):
         result = {}
@@ -291,7 +319,7 @@ class LIACI_Stitcher():
         return result 
 
     def get_percentages(self):
-        pixels_not_black = np.any(self.video_mosaic.output_img != [0,0,0], axis=-1)
+        pixels_not_black = np.any(self.video_mosaic.output_img != [255.,255.,255.], axis=-1)
         num_pixels = pixels_not_black.sum()
         
         result = {}

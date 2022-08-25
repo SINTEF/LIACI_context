@@ -4,7 +4,7 @@ import glob
 import os
 import hashlib
 
-from pipeline.video_input.inspection import AnalyzedInspection, VideoInspection
+from video_input.inspection import AnalyzedInspection, VideoInspection
 
 
 """Class to find inspection videos with metadata.
