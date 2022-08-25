@@ -1,48 +1,36 @@
+from dataclasses import dataclass, field
+from dataclasses_json import dataclass_json
+
+@dataclass_json
+@dataclass
 class LiRudderArrangement():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "421"
-        self.name = "Rudder arrangement"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='421', init=False)
+    name : str = field(default='Rudder arrangement', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiRudderStock():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "421.2"
-        self.name = "Rudder stock"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='421.2', init=False)
+    name : str = field(default='Rudder stock', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiRudder():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "421.3"
-        self.name = "Rudder"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='421.3', init=False)
+    name : str = field(default='Rudder', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiSolePiecePintles():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "421.4"
-        self.name = "Sole piece/ pintles"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='421.4', init=False)
+    name : str = field(default='Sole piece/ pintles', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiFlapBeckerRudder():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "421.5"
-        self.name = "Flap/ becker rudder"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='421.5', init=False)
+    name : str = field(default='Flap/ becker rudder', init=False)

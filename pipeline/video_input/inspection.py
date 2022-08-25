@@ -8,15 +8,15 @@ import cv2
 from cv2 import CAP_PROP_FRAME_COUNT
 import numpy as np
 
-from pipeline.computer_vision.LIACi_classifier import LIACi_classifier
-from pipeline.computer_vision.LIACi_segmenter import LIACi_segmenter
-from pipeline.computer_vision.LIACi_detector import LIACi_detector
+from computer_vision.LIACi_classifier import LIACi_classifier
+from computer_vision.LIACi_segmenter import LIACi_segmenter
+from computer_vision.LIACi_detector import LIACi_detector
 from data.vismodel.LiShip import LiShip
 from data.inspection.LiInspection import LiInspection
 import data.access.ship as ship_access
 import data.access.inspection as inspection_access
 
-from pipeline.video_input.ass_telemetry_reader import get_telemetry_data, read_telemetry_data
+from video_input.ass_telemetry_reader import get_telemetry_data, read_telemetry_data
 
 class StepIterator:
     def __init__(self, object, step, get_method) -> None:
@@ -65,6 +65,7 @@ Glommen""".split())
 
 class Inspection:
     frame_step: int
+    frame_count: int
     def __init__(self) -> None:
         pass
 
@@ -147,7 +148,7 @@ class VideoInspection(Inspection):
         if not self.cv_capture.isOpened():
             raise IOError("Could not open video file.")
         
-        self.video_length = int(self.cv_capture.get(CAP_PROP_FRAME_COUNT))
+        self.video_length = self.frame_count = int(self.cv_capture.get(CAP_PROP_FRAME_COUNT))
 
         self.telemetry = read_telemetry_data(self.ass_file, self.video_length)
         print(len(self.telemetry))

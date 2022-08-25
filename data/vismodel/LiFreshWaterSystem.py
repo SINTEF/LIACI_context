@@ -1,18 +1,15 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiFreshWaterSystem():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "632"
-        self.name = "Fresh Water System"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='632', init=False)
+    name : str = field(default='Fresh Water System', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiBoxCooler():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "632.332"
-        self.name = "Box Cooler"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='632.332', init=False)
+    name : str = field(default='Box Cooler', init=False)

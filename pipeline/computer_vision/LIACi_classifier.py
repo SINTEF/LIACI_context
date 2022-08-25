@@ -19,8 +19,8 @@ class LIACi_classifier():
         self.image = image
         
         # labels and model
-        MODEL_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_classifier/model.onnx'
-        LABELS_FILENAME = 'pipeline/computer_vision/modelzoo/LIACi_classifier/labels.txt'
+        MODEL_FILENAME = 'computer_vision/modelzoo/LIACi_classifier/model.onnx'
+        LABELS_FILENAME = 'computer_vision/modelzoo/LIACi_classifier/labels.txt'
 
         self.labels = []
         with open(LABELS_FILENAME, 'rt') as lf:

@@ -1,21 +1,16 @@
+from dataclasses import dataclass, field
+from dataclasses_json import dataclass_json
+
+
+@dataclass_json
+@dataclass
 class LiSeaWaterSystem():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "631"
-        self.name = "Sea Water System"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='631', init=False)
+    name : str = field(default='Sea Water System', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiOpenings():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "631.1"
-        self.name = "Openings"
-        self.seaChests = []
-        self.inlets = []
-        self.outlets = []
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='631.1', init=False)
+    name : str = field(default='Openings', init=False)

@@ -1,18 +1,16 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+
+@dataclass_json
+@dataclass
 class LiPropulsionThrusterArrangement():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "433"
-        self.name = "Propulsion thruster arrangement"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='433', init=False)
+    name : str = field(default='Propulsion thruster arrangement', init=False)
 
 
+@dataclass_json
+@dataclass
 class LiHydraulicOilTightness():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "433.2"
-        self.name = "Hydraulic oil tightness"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='433.2', init=False)
+    name : str = field(default='Hydraulic oil tightness', init=False)

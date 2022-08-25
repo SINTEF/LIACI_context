@@ -1,8 +1,8 @@
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
+from dataclasses import field
+@dataclass_json
+@dataclass
 class LiShipHullStructure():
-    def __init__(self, imo=None):
-        self.imo = imo
-        self.visCode = "111"
-        self.name = "Ship Hull Structure"
-        self.inspectionCheckPoints = []
-        self.findings = []
-        self.inspectionImages = []
+    visCode : str = field(default='111', init=False)
+    name : str = field(default='Ship Hull Structure', init=False)

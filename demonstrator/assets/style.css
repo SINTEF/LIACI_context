@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700');
+
+body {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    font-size: larger;
+    color: #000000;
+    background-color: #ffffff;
+    margin: 0px;
+    padding: 10px;
+    height: 100%;
+}
+
+.header {
+    flex: 0 1 auto;
+    margin-bottom: 15px;
+}
+.header img {
+    max-height: 50px;
+    max-width: 50vw;
+    margin: 0 30px 0 0;
+}
+
+.two_columns {
+    flex: 1 1 auto;
+    width: 100%;
+    display: flex;
+    flex-flow: row;
+}
+.left {
+    overflow: auto;
+    width: 20%;
+    border: 1px solid lightgray;
+    float:left;
+    float:left;
+    flex: 1 1 auto;
+    margin-right: 5px;
+    padding: 5px;
+}
+
+.right {
+    overflow: auto;
+    width: 80%;
+    border: 1px solid lightgray;
+    float:left;
+    flex: 1 1 auto;
+}
+
+.graphContainer {
+    
+    
+    max-height: 80vh;
+    overflow: auto;
+    width: 70%;
+    border: 1px solid lightgray;
+    float:left;
+    flex: 1 1 auto;
+    margin-right: 5px;
+    padding: 5px;
+}
+
+.nodeInfo {
+    max-height: 80vh;
+    overflow: auto;
+    width: 30%;
+    border: 1px solid lightgray;
+    float:left;
+    flex: 1 1 auto;
+    padding: 5px;
+}
+.main_page_container {
+    width: 100%;
+    min-height: 700px;
+    overflow: none;
+    display: flex;
+    flex-flow: column;
+}
+
+.controls label{
+    display: block;
+}
+.controls h4{
+    margin: 10px 0;
+}
+
+
+tr img{
+    max-width: 400px;
+}

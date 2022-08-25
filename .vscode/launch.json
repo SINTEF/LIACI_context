@@ -5,9 +5,10 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "Launch app",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/demonstrator",
             "python": "/usr/bin/python",
             "type": "python",
             "request": "launch",
@@ -21,7 +22,7 @@
             "type": "python",
             "request": "launch",
             "program": "main.py",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/pipeline",
             "console": "integratedTerminal",
             "justMyCode": true
         },
