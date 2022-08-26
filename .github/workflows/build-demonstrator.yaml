@@ -8,8 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: sintef-9012/liaci-context
-  INIT_IMAGE_NAME: sintef-9012/liaci-context-init
+  IMAGE_NAME: sintef-9012/liaci-context # !!TODO!!
 
 jobs:
   build-demonstrator-image:
@@ -40,20 +39,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./demonstrator
-          push: true
+          push: false
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
-      
-      # - name: Extract metadata (tags, labels) for init image
-      #   id: meta-init
-      #   uses: docker/metadata-action@v3
-      #   with:
-      #     images: ${{ env.REGISTRY }}/${{ env.INIT_IMAGE_NAME }}
-      
-      # - name: Build and push Docker init image
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: ./deployments/liaci-init
-      #     push: true
-      #     tags: ${{ steps.meta-init.outputs.tags }}
-      #     labels: ${{ steps.meta-init.outputs.labels }}

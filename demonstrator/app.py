@@ -13,7 +13,7 @@ import data_manager
 import logging
 logging.basicConfig(level=logging.WARN)
 
-sites = [graph_view, clusters_view, hist_view, tables_view, images_view, bar_charts_view]
+sites = [graph_view, clusters_view, hist_view, tables_view, bar_charts_view]
 
 external_stylesheets = [
     "https://codepen.io/chriddyp/pen/bWLwgP.css",

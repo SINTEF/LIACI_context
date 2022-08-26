@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/sintef-9012/liaci-context !TODO
+  repository: ghcr.io/sintef-9012/liaci-context
   pullPolicy: IfNotPresent
   tag: "main"
 
@@ -24,8 +24,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 data:
-  assets-url: https://liacidvc.blob.core.windows.net/liaci/download.zip
-  database-dump-url: TODO 
+  assets-url: https://joseph-hirsch.de/licon/imgs.zip
+  database-dump-url: https://joseph-hirsch.de/licon/licon-neo4j.dump 
 
 persistence:
   storageClass: ""

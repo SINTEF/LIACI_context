@@ -61,7 +61,7 @@ def redact_json_data(json_data, positions):
         elif n['data']['id'].startswith('im_'): 
             n['classes'] = 'frame'
             n['data']['image_path'] = 'assets/imgs/frames/' + n['data']['thumbnail']
-            n['data']['label'] = f"{n['data']['dbscan_cluster']} - {n['data']['kmeans_cluster']}"
+            n['data']['label'] = f"{n['data']['frame_index']}"
 
         if 'style' in n['data']: n['style'] = n['data']['style']
         try:

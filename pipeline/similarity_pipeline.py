@@ -176,10 +176,9 @@ def do_similarity():
 
         frame_access.merge_node(node)
         # DONT Add similarities...
-        continue
 
-        vec_distances, vec_neighbors = vec_tree[inspection].query(rtsne, k=25)
-        imvec_distances, imvec_neighbors = imvec_tree[inspection].query(rpca, k=25)
+        vec_distances, vec_neighbors = vec_tree[inspection].query(rtsne, k=5)
+        imvec_distances, imvec_neighbors = imvec_tree[inspection].query(rpca, k=5)
 
         vec_neighbors = [py2neonodes[id_in_inspection_list_to_id_in_node_list[inspection][n]] for n in vec_neighbors]
         imvec_neighbors = [py2neonodes[id_in_inspection_list_to_id_in_node_list[inspection][n]] for n in imvec_neighbors]

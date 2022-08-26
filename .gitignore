@@ -5,3 +5,5 @@ pipeline/computer_vision/modelzoo
 data/imgs/frames/*.jpg
 pipeline/image_bw_vectors_pickle.pyp
 pipeline/image_vectors_pickle.pyp
+api/dumps/*
+api/neo4jdata/*

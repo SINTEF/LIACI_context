@@ -10,7 +10,7 @@ from py2neo.matching import NodeMatcher
 import py2neo
 
 def create_or_attach(frame: py2neo.Node, cluster_id: str):
-    cluster_node = find_node(ClusterNode(cluster_id).label, cluster_id)
+    cluster_node = find_node(ClusterNode(cluster_id).label, id=cluster_id)
     if cluster_node is None:
         cluster_node = create_cluster(ClusterNode(cluster_id))
     else:
