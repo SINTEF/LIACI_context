@@ -1,3 +1,0 @@
-include bitnami neo4j standalone helm chart
-secrets encrypted with sops
-docker container -> github action -> helm chart -> deployment
