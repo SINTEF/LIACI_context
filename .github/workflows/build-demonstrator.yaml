@@ -9,38 +9,38 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: sintef-9012/liaci-context
-  INIT_IMAGE_NAME: sintef-9012/liaci-init
+  INIT_IMAGE_NAME: sintef-9012/liaci-context-init
 
 jobs:
   build-demonstrator-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      #packages: write
+      packages: write  
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # - name: Log in to the Container registry
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ${{ env.REGISTRY }}
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Extract metadata (tags, labels) for main image
-      #   id: meta-main
-      #   uses: docker/metadata-action@v3
-      #   with:
-      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Extract metadata (tags, labels) for main image
+        id: meta-main
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build demonstrator docker image
   
         uses: docker/build-push-action@v2
         with:
           context: ./demonstrator
-          push: false
+          push: true
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
       

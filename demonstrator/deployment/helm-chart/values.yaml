@@ -1,18 +1,37 @@
-# Default values for liaci-context.
+# Default values for liaci.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: ghcr.io/sintef-9012/liaci-context !TODO
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "main"
+
+initImage:
+  repository: ghcr.io/sintef-9012/liaci-context-init
+  pullPolicy: Always
+  tag: "main"
+
+initNeo4j:
+  repository: ghcr.io/sintef-9012/liaci-context-neo4j-init
+  pullPolicy: Always
+  tag: "main"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+data:
+  assets-url: https://liacidvc.blob.core.windows.net/liaci/download.zip
+  database-dump-url: TODO 
+
+persistence:
+  storageClass: ""
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 4Gi
 
 serviceAccount:
   # Specifies whether a service account should be created

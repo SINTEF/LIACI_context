@@ -15,8 +15,8 @@ services:
        - NEO4J_AUTH=neo4j/liaci
        - NEO4JLABS_PLUGINS=["graph-data-science"]
     volumes:
-      - neo4j-data:/data 
+      - neo4j-data-dev2:/data 
 
 volumes:
-  neo4j-data: #neo4j-data-dev is with data
+  neo4j-data-dev2: #neo4j-data-dev is with data
     
