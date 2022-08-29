@@ -58,7 +58,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Visual Similarities', # title of plot
             xaxis_title_text='Visual Similarities', # xaxis label
-            yaxis_title_text=#Frames'', # yaxis label
+            yaxis_title_text='#Frames', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False

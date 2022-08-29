@@ -22,7 +22,7 @@ external_stylesheets = [
 ]
 
 app = dash.Dash('LIACi Context Demonstrator', external_stylesheets=external_stylesheets)
-
+app.title='LIACi Context Demonstrator'
 
 
 ############################################################################################################################
