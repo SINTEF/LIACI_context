@@ -26,7 +26,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Image Quality (UCIQE)', # title of plot
             xaxis_title_text='Image Quality (UCIQE)', # xaxis label
-            yaxis_title_text='', # yaxis label
+            yaxis_title_text='#Frames', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False
@@ -42,7 +42,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Marine Growth Percentage', # title of plot
             xaxis_title_text='Marine Growth Percentage', # xaxis label
-            yaxis_title_text='', # yaxis label
+            yaxis_title_text='#Mosaics', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False
@@ -58,7 +58,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Visual Similarities', # title of plot
             xaxis_title_text='Visual Similarities', # xaxis label
-            yaxis_title_text='', # yaxis label
+            yaxis_title_text=#Frames'', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False
@@ -73,7 +73,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Similarities', # title of plot
             xaxis_title_text='Similarities', # xaxis label
-            yaxis_title_text='', # yaxis label
+            yaxis_title_text='#Similarities', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False
@@ -88,7 +88,7 @@ def register_callback(app):
         fig.update_layout(
             title_text='Depth', # title of plot
             xaxis_title_text='Depth', # xaxis label
-            yaxis_title_text='', # yaxis label
+            yaxis_title_text='#Frames', # yaxis label
             bargap=0.1, # gap between bars of adjacent location coordinates
             showlegend=False,
             hovermode=False
