@@ -30,17 +30,6 @@ curl "$url" > "$tempfile"
 # Unzip the file into data folder
 unzip -o "$tempfile" -d /data
 
-# find the first folder in /data
-folder=$(find /data -mindepth 1 -maxdepth 1 -type d)
-
-# Move everything from subfolders into the parent folder
-mv -v $folder/* /data/
-
-# Remove the folder
-rmdir $folder
-
-# Move the folder to its download location
-mv "$tempfile" /data/data.zip
-
+echo "downloaded and extracted $(ls -l /data/imgs/frames | wc -l) frames and $(ls -l /data/imgs/mosaics | wc -l) mosaics"
 # Write the url in the /data/url file
 echo "$url" > /data/url
