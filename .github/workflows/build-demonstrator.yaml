@@ -41,7 +41,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./demonstrator
-          push: false
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
 
@@ -73,7 +72,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./demonstrator/deployment/demonstrator-init
-          push: false
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
 
@@ -105,6 +103,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./demonstrator/deployment/neo4j-init
-          push: false
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
