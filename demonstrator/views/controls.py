@@ -7,9 +7,10 @@ def title():
     return 'Controls'
 
 def layout():
+    inspections = get_inspections().keys()
     return html.Div(className='controls', children=[
         html.H4('Choose Inspection(s)'),
-        dcc.Dropdown(list(get_inspections().keys()), id='inspections_dd', multi=True),
+        dcc.Dropdown(list(inspections), value=list(inspections)[:1], id='inspections_dd', multi=True),
         html.H4('Include'),
         html.P('Telemetry Similarities'),
         dcc.Slider(id="telemetry_similarities", min=0, max=5,  value=1.5),
@@ -22,8 +23,6 @@ def layout():
         dcc.Checklist(['marine growth', 'paint peel', 'corrosion', 'defect'], id='defects_cl'),
         html.H4('On the following part'),
         dcc.Checklist(['anode', 'propeller', 'bilge keel', 'sea chest grating', 'over board valves'], id='findings_cl'),
-        html.Br(),
-        html.Div(id='status')
     ])
 
 def register_callbacks(app):

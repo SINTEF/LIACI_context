@@ -36,11 +36,19 @@ app.layout = html.Div(className='main_page_container', children=[
         html.Img(src='assets/LiaciContextLogo.png')
     ]),
     html.Div(className='two_columns', children=[
-        html.Div(className='left', children = [controls.layout()]),
+        html.Div(className='left', children = [controls.layout(),
+        
+    html.Div(className='footer', children=[
+        html.P([html.B("Publication Date"),": 30.08.2022"]),
+        html.P([html.B("Grants"),": The dataset contained on this page was created within the ", html.A(["LIACi"], href="https://www.sintef.no/en/projects/2021/liaci/"), " project. LIACi was funded by the Research Council of Norway under the project No 317854."]),
+        html.P([html.B("License"),": This work and the data is restricted by the ", html.A(["Creative Commons Attribition Non Commercial Share Alike 4.0 International"], href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"), " license."]),
+    ]),
+        
+        ]),
         html.Div(className='right', children = [
            dcc.Tabs(id='tabs', value='0', children=[dcc.Tab(label=s.title(), value=str(i)) for i,s in enumerate(sites)]) ,
            html.Div(id='tabs-content')
-        ])])
+        ])]),
     ])
 
 

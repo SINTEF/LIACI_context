@@ -11,7 +11,7 @@ def layout():
         dcc.Graph(id="mg_hist"),
         dcc.Graph(id="sim_hist"),
         dcc.Graph(id="vsim_hist")
-    ])
+    ], className="histogramContainer")
 
 def title():
     return 'Histograms'

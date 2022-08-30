@@ -21,7 +21,12 @@ body {
     margin: 0 30px 0 0;
 }
 
+.footer {
+    position: absolute;
+    bottom: 0;
+}
 .two_columns {
+    min-height: 720px;
     flex: 1 1 auto;
     width: 100%;
     display: flex;
@@ -36,6 +41,7 @@ body {
     flex: 1 1 auto;
     margin-right: 5px;
     padding: 5px;
+    position:relative;
 }
 
 .right {
@@ -46,10 +52,19 @@ body {
     flex: 1 1 auto;
 }
 
+.histogramContainer {
+    
+    
+    height: 80vh;
+    min-height: 720px;
+    overflow: auto;
+}
+
 .graphContainer {
     
     
-    max-height: 80vh;
+    height: 80vh;
+    min-height: 720px;
     overflow: auto;
     width: 70%;
     border: 1px solid lightgray;
@@ -60,7 +75,8 @@ body {
 }
 
 .nodeInfo {
-    max-height: 80vh;
+    height: 80vh;
+    min-height: 720px;
     overflow: auto;
     width: 30%;
     border: 1px solid lightgray;
