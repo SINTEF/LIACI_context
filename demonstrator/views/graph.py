@@ -247,7 +247,8 @@ def layout():
                         'selector': '.inspection',
                         'style': {
                             'line-color': '#eeeeee',
-                            'line-width': 1
+                            'line-width': 1,
+                            'opacity': 0
                         }
                     },
                     {
@@ -371,7 +372,7 @@ def register_callback(app):
         fixed_positions = [k for k in positions_by_pca.keys()]
         print(f"loaded result, got {len(node_tuples)} nodes and {relcount} relationships, layouting...")
         #pos = nx.spring_layout(graph, fixed = fixed_positions, pos = positions_by_pca, k=1/math.sqrt(graph.order() + 1), iterations=100)
-        pos = nx.spring_layout(graph, k=3/math.sqrt(graph.order() + 1), iterations=100)
+        pos = nx.spring_layout(graph, k=4/math.sqrt(graph.order() + 1), iterations=200)
         elmts = redact_json_data(nx.cytoscape_data(graph), pos)['elements']
         print(f"done")
 

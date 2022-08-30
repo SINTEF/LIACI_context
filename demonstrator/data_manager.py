@@ -10,17 +10,18 @@ class FilterOptions():
     parts: list
     visual_similarities: float
     telemetry_similarities: float
+    image_quality_threshold: float
     mosaics: bool
     key_frames: bool
     filter_id: str
 
 def get_findings_where_clause(filter_options, begin):
-    findings_where_clause = ''
-    if len(filter_options.parts) > 0: findings_where_clause += f" {begin} ( "
+    findings_where_clause = f'{begin} i.uciqe >= {filter_options.image_quality_threshold}'
+    if len(filter_options.parts) > 0: findings_where_clause += f" AND ( "
     findings_where_clause += ' OR '.join([f"i.{p} > 0.8" for p in filter_options.parts])
     if len(filter_options.parts) > 0: findings_where_clause += " ) "
     
-    if len(filter_options.defects) > 0: findings_where_clause += f" {'AND' if len(filter_options.parts) > 0 else begin} ( "
+    if len(filter_options.defects) > 0: findings_where_clause += f" AND ( "
     findings_where_clause += ' OR '.join([f"i.{d} > 0.8" for d in filter_options.defects])
     if len(filter_options.defects) > 0: findings_where_clause += " ) "
     return findings_where_clause
@@ -88,8 +89,6 @@ def register_callbacks(app):
         """
 
 
-# TODO!!! Do this: match (i:Image{id:'146798.59310.0'}) WITH i, collect(i) as ilist MATCH (i)-[r]- (i2:Image) WITH ilist + collect(i2) as alli unwind alli as i  RETURN i
-# TODO Do this for key frames: https://neo4j.com/docs/graph-data-science/current/algorithms/louvain/
 
         images_and_inspections = f"""MATCH (i:Image) <-[:HAS_FRAME]- (ins:Inspection) WHERE ins.id in [{','.join([f"{i}" for i in filter_options.inspections])}]{get_findings_where_clause(filter_options, "AND")}"""
         neighbor_images = f"""{images_and_inspections} WITH i, collect(i) as ilist MATCH (i) -[]- (i2:Image)"""
@@ -179,7 +178,7 @@ def register_callbacks(app):
              query8 = f"""{images_and_inspections} RETURN i.id as id, i.thumbnail as image_file, i.uciqe as uciqe"""
 
 
-        query_clusters = f"""{images_and_inspections} WITH ins.id as inspection_id, i.dbscan_cluster as cluster, 
+        query_clusters = f"""{images_and_inspections} AND i.dbscan_cluster <> -1 WITH ins.id as inspection_id, i.dbscan_cluster as cluster, 
             collect(CASE WHEN i.marine_growth > 0.8 THEN 1 ELSE 0 END) as mg ,
             collect(CASE WHEN i.corrosion > 0.8 THEN 1 ELSE 0 END) as co ,
             collect(CASE WHEN i.paint_peel > 0.8 THEN 1 ELSE 0 END) as pp ,
@@ -192,6 +191,7 @@ def register_callbacks(app):
             min(i.framenumber) as frame_number,
 
             collect(i) as nodes
+
 
             ORDER BY frame_number
 
