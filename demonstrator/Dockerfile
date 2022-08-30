@@ -22,6 +22,7 @@ COPY main.sh .
 COPY assets/LiaciContextLogo.png assets/
 COPY assets/SintefLogo.png assets/
 COPY assets/style.css assets/
+COPY assets/favicon.ico assets/
 
 
 VOLUME [ "/opt/liaci-context/assets/imgs" ]
