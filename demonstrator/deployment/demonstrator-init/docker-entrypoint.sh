@@ -30,6 +30,8 @@ curl "$url" > "$tempfile"
 # Unzip the file into data folder
 unzip -o "$tempfile" -d /data
 
+mv /data/imgs/* /data/
+
 echo "downloaded and extracted $(ls -l /data/frames | wc -l) frames and $(ls -l /data/mosaics | wc -l) mosaics"
 # Write the url in the /data/url file
 echo "$url" > /data/url
