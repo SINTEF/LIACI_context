@@ -8,9 +8,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: sintef-9012/liaci-context # !!TODO!!
-  DEMO_INIT_IMAGE_NAME: sintef-9012/liaci-context-demo-init # !!TODO!!
-  NEO4J_INIT_IMAGE_NAME: sintef-9012/liaci-context-neo4j-init # !!TODO!!
+  IMAGE_NAME: sintef/liaci-context
+  DEMO_INIT_IMAGE_NAME: sintef/liaci-context-demo-init
+  NEO4J_INIT_IMAGE_NAME: sintef/liaci-context-neo4j-init
 
 jobs:
   build-demonstrator-image:

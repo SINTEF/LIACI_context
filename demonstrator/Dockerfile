@@ -3,10 +3,8 @@ FROM python:3.9-buster
 # Set labels 
 LABEL vendor=SINTEF_Digital 
 
-RUN mkdir /opt/liaci-context
-RUN mkdir /opt/liaci-context/assets
-RUN mkdir /opt/liaci-context/assets/imgs
-RUN mkdir -p /opt/liaci-context/data/access
+RUN mkdir -p /opt/liaci-context/assets/imgs \
+    && mkdir -p /opt/liaci-context/data/access
 WORKDIR /opt/liaci-context
 ENV PYTHONPATH /opt/liaci-context
 
