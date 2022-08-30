@@ -51,7 +51,13 @@ class neo4j_transaction(object):
 liaci_datastore_graph = None
 def liaci_graph(username=None, password=None, host=None, port="7687"):
     if username is None:
-        username = environ.get("NEO4J_USERNAME", "neo4j")
+        auth = environ.get("NEO4J_AUTH")
+        if auth is not None:
+            username, newpassword = auth.split("/")
+            if password is None:
+                password = newpassword
+        else:
+            username = environ.get("NEO4J_USERNAME", "neo4j")
     if password is None:
         password = environ.get("NEO4J_PASSWORD", "liaci")
     if host is None:
