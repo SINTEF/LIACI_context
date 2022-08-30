@@ -11,6 +11,7 @@ env:
   IMAGE_NAME: sintef/liaci-context
   DEMO_INIT_IMAGE_NAME: sintef/liaci-context-demo-init
   NEO4J_INIT_IMAGE_NAME: sintef/liaci-context-neo4j-init
+  GITOPS_REPOSITORY: SINTEF/infrastructure-as-code-sustainable-communication-technologies
 
 jobs:
   build-demonstrator-image:
@@ -35,6 +36,12 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=ref,event=pr
+            type=sha
 
       - name: Build demonstrator docker image
   
@@ -44,6 +51,28 @@ jobs:
           push: true
           tags: ${{ steps.meta-main.outputs.tags }}
           labels: ${{ steps.meta-main.outputs.labels }}
+  
+  deploy:
+    if: contains(github.ref, 'heads')
+    runs-on: ubuntu-latest
+    needs:
+      - build-demonstrator-image
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.GITOPS_REPOSITORY }}
+          ssh-key: ${{secrets.GITOPS_REPOSITORY_SSH_KEY}}
+      - name: Patch version
+        run: |
+          yq --inplace '.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/liaci-context/image-tag.yaml
+      - name: Commit and push
+        run: |
+          git config user.email "gitops@sintef.cloud"
+          git config user.name "GitOps"
+          git commit -am "GitOps update for LIACi Context"
+          git pull --rebase
+          git push
 
   build-demonstrator-init-image:
     runs-on: ubuntu-latest
