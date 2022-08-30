@@ -8,6 +8,8 @@ spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "liaci-context.selectorLabels" . | nindent 6 }}
@@ -27,8 +29,6 @@ spec:
       serviceAccountName: {{ include "liaci-context.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      strategy:
-        type: Recreate
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
