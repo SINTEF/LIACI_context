@@ -5,27 +5,31 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/sintef-9012/liaci-context
+  repository: ghcr.io/sintef/liaci-context
   pullPolicy: IfNotPresent
   tag: "main"
 
 initImage:
-  repository: ghcr.io/sintef-9012/liaci-context-init
+  repository: ghcr.io/sintef/liaci-context-demo-init
   pullPolicy: Always
   tag: "main"
 
 initNeo4j:
-  repository: ghcr.io/sintef-9012/liaci-context-neo4j-init
+  repository: ghcr.io/sintef/liaci-context-neo4j-init
   pullPolicy: Always
   tag: "main"
+
+liaci:
+  neo4j:
+    host: ""
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 data:
-  assets-url: https://joseph-hirsch.de/licon/imgs.zip
-  database-dump-url: https://joseph-hirsch.de/licon/licon-neo4j.dump 
+  assetsUrl: https://liacidvc.blob.core.windows.net/liaci/imgs.zip
+  databaseDumpUrl: https://liacidvc.blob.core.windows.net/liaci/licon-neo4j.dump
 
 persistence:
   storageClass: ""
@@ -99,3 +103,33 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+neo4j-standalone:
+  neo4j:
+    name: neo4j
+    # If password is not set or empty a random password will be generated during installation
+    password: ""
+
+    acceptLicenseAgreement: "yes"
+  
+  volumes:
+    data:
+      mode: defaultStorageClass
+
+  services:
+    neo4j:
+      spec:
+        type: ClusterIP
+  
+  podSpec:
+    initContainers:
+      - name: init-data
+        image: ghcr.io/sintef/liaci-context-neo4j-init:main
+        imagePullPolicy: Always
+        args:
+          - https://liacidvc.blob.core.windows.net/liaci/licon-neo4j.dump
+        volumeMounts:
+          - name: data
+            mountPath: /data
+            subPathExpr: data
+
