@@ -4,3 +4,7 @@ description: LIACi contextualization demonstrator
 type: application
 version: 0.1.0
 appVersion: "1.16.0"
+dependencies:
+  - name: neo4j-standalone
+    version: "4.4.10"
+    repository: https://helm.neo4j.com/neo4j
