@@ -12,7 +12,6 @@ def layout():
     columns = [
         {'name': 'ID', 'id': 'cluster'},
         {'name': 'Key Frame', 'id': 'key_frame', "presentation": "markdown"},
-        {'name': 'Size', 'id': 'size'},
         {'name': 'Key Words', 'id': 'keywords'},
     ]
 
