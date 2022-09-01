@@ -1,123 +1,20 @@
-import functools
-import json
-import math
-import random
-from dash import dcc, Input, Output, State, html
-import dash_cytoscape as cyto
-import py2neo
-from py2neo import NodeMatcher, Graph, RelationshipMatcher
+graph_stylesheet = [
+                    {
+                        'selector': '.msg',
+                        'style': {
+                            "border-width": 0,
+                            "border-color": "black",
+                            "border-opacity": 1,
+                            "opacity": 1,
+                            "width": 0,
+                            "height": 0,
 
-import networkx as nx
-
-finding = ['defect', 'corrosion', 'marine_growth', 'paint_peel', 'anode', 'over_board_valve', 'propeller', 'sea_chest_grating', 'bilge_keel']
-
-empty_elements = {
-    'nodes': [
-        {'data':{'label': 'Nothing to show', 'id': 3}, 'classes' : 'finding'},
-    ],
-    'edges': [
-    ]
-}
-
-"""
-elmts have the structure {'nodes': [], 'edges': []}
-nodes: List of nodes:
-{   
-    'data':       {arbitrary data, no meaning for graph unless used in layout, eg. size}, 
-    'classes':    "classes, comma seperated i guess", 
-    'position':   {'x': ..., 'y': ...}
-}
-
-edges: List of edges:
-{
-    'data': {
-        'source' : <index of node in nodes List>
-        'target' : <index of node in nodes List>
-        + optional arbitrary data used in layout
-    }
-}
-"""
-
-def redact_json_data(json_data, positions):
-    for i, n in enumerate(json_data['elements']['nodes']):
-        n['data']['id'] = n['data']['value'] 
-        if 'classes' in n['data']: n['classes'] = n['data']['classes']
-        elif n['data']['id'].startswith('s_'): 
-            n['classes'] = 'ship'
-            n['data']['label'] = n['data']['name']
-            
-        elif n['data']['id'].startswith('p_s_'): 
-            n['classes'] = 'ship_part'
-            n['data']['label'] = n['data']['name']
-        elif n['data']['id'].startswith('in_'):
-            n['classes'] = 'inspection'
-            n['data']['label'] = f"Inspection on {n['data']['date']}"
-        elif n['data']['id'].startswith('c'):
-            n['classes'] = 'cluster'
-            n['data']['label'] = f"Cluster {n['data']['id'].split('.')[-1]}"
-        elif n['data']['id'].startswith('m_'): 
-            n['classes'] = 'mosaic'
-            n['data']['image_path'] = 'assets/imgs/mosaics/' + n['data']['seg_image_file']
-        elif n['data']['id'].startswith('im_'): 
-            n['classes'] = 'frame'
-            n['data']['image_path'] = 'assets/imgs/frames/' + n['data']['thumbnail']
-            n['data']['label'] = f"{n['data']['frame_index']}"
-
-        if 'style' in n['data']: n['style'] = n['data']['style']
-        try:
-            #pos = n['data']['pca'].split(',')
-            #pos = [float(p) for p in pos]
-            pos = positions[n['data']['id']]
-            n['position'] = {'x': 1000 * pos[0], 'y': 1000 * pos[1]}
-        except:
-            n['position'] = {'x': 0, 'y': 0}
-
-    for i, e in enumerate(json_data['elements']['edges']):
-        if 'classes' in e['data']: e['classes'] = e['data']['classes']
-    return json_data
-
-
-legend_colors_segmenter = {
-    'anode': (0, 255, 255),
-    'bilge_keel': (255, 165, 0),
-    'corrosion': (255, 255, 0),
-    'defect': (255, 192, 203),
-    'marine_growth': (0, 128, 0),
-    'over_board_valves': (64, 224, 208),
-    'paint_peel': (255, 0, 0),
-    'propeller': (128, 0, 128),
-    'sea_chest_grating': (255, 255, 255),
-    'ship_hull': (0, 0, 255),
-}
-
-def layout():
-    return html.Div(className="two_columns", children=[
-        html.Div(className="graphContainer", children=[
-        html.H1("Graph View"),
-        cyto.Cytoscape(
-            id='gr',
-            layout={
-                'name': 'preset',
-                'animate': True,
-                #'idealEdgeLength': 400,
-                #'nodeOverlap': 20,
-                #'refresh': 20,
-                'fit': True,
-                #'padding': 30,
-                #'randomize': False,
-                'componentSpacing': 1,
-                'nodeRepulsion': 8000,
-                #'edgeElasticity': 10,
-                #'nestingFactor': 5,
-                #'gravity': 80,
-                #'numIter': 1000,
-                #'initialTemp': 200,
-                #'coolingFactor': 0.95,
-                #'minTemp': 1.0
-            },
-            style={'width': '100%', 'height': '1000px'},
-            elements={},
-            stylesheet = [
+                            "label": "data(label)",
+                            "color": "#000000",
+                            "text-opacity": 1,
+                            "font-size": 12,   
+                        }
+                    },
                     {
                         'selector': '.finding',
                         'style': {
@@ -282,7 +179,124 @@ def layout():
                         }
                     },
                 ]
-            )
+import functools
+import json
+import math
+import random
+from dash import dcc, Input, Output, State, html
+import dash_cytoscape as cyto
+import py2neo
+from py2neo import NodeMatcher, Graph, RelationshipMatcher
+
+import networkx as nx
+
+finding = ['defect', 'corrosion', 'marine_growth', 'paint_peel', 'anode', 'over_board_valve', 'propeller', 'sea_chest_grating', 'bilge_keel']
+
+empty_elements = {
+    'nodes': [
+        {'data':{'label': 'Nothing to show', 'id': 3}, 'classes' : 'msg'},
+    ],
+    'edges': [
+    ]
+}
+loading_elements = {
+    'nodes': [
+        {'data':{'label': 'Loading...', 'id': 3}, 'classes' : 'msg'},
+    ],
+    'edges': [
+    ]
+}
+
+"""
+elmts have the structure {'nodes': [], 'edges': []}
+nodes: List of nodes:
+{   
+    'data':       {arbitrary data, no meaning for graph unless used in layout, eg. size}, 
+    'classes':    "classes, comma seperated i guess", 
+    'position':   {'x': ..., 'y': ...}
+}
+
+edges: List of edges:
+{
+    'data': {
+        'source' : <index of node in nodes List>
+        'target' : <index of node in nodes List>
+        + optional arbitrary data used in layout
+    }
+}
+"""
+
+def redact_json_data(json_data, positions):
+    for i, n in enumerate(json_data['elements']['nodes']):
+        n['data']['id'] = n['data']['value'] 
+        if 'classes' in n['data']: n['classes'] = n['data']['classes']
+        elif n['data']['id'].startswith('s_'): 
+            n['classes'] = 'ship'
+            n['data']['label'] = n['data']['name']
+            
+        elif n['data']['id'].startswith('p_s_'): 
+            n['classes'] = 'ship_part'
+            n['data']['label'] = n['data']['name']
+        elif n['data']['id'].startswith('in_'):
+            n['classes'] = 'inspection'
+            n['data']['label'] = f"Inspection on {n['data']['date']}"
+        elif n['data']['id'].startswith('c'):
+            n['classes'] = 'cluster'
+            n['data']['label'] = f"Cluster {n['data']['id'].split('.')[-1]}"
+        elif n['data']['id'].startswith('m_'): 
+            n['classes'] = 'mosaic'
+            n['data']['image_path'] = 'assets/imgs/mosaics/' + n['data']['seg_image_file']
+        elif n['data']['id'].startswith('im_'): 
+            n['classes'] = 'frame'
+            n['data']['image_path'] = 'assets/imgs/frames/' + n['data']['thumbnail']
+            n['data']['label'] = f"{n['data']['frame_index']}"
+
+        if 'style' in n['data']: n['style'] = n['data']['style']
+        try:
+            #pos = n['data']['pca'].split(',')
+            #pos = [float(p) for p in pos]
+            pos = positions[n['data']['id']]
+            n['position'] = {'x': 1 * pos[0], 'y': 1 * pos[1]}
+        except:
+            n['position'] = {'x': 0, 'y': 0}
+
+    for i, e in enumerate(json_data['elements']['edges']):
+        if 'classes' in e['data']: e['classes'] = e['data']['classes']
+    return json_data
+
+
+legend_colors_segmenter = {
+    'anode': (0, 255, 255),
+    'bilge_keel': (255, 165, 0),
+    'corrosion': (255, 255, 0),
+    'defect': (255, 192, 203),
+    'marine_growth': (0, 128, 0),
+    'over_board_valves': (64, 224, 208),
+    'paint_peel': (255, 0, 0),
+    'propeller': (128, 0, 128),
+    'sea_chest_grating': (255, 255, 255),
+    'ship_hull': (0, 0, 255),
+}
+
+def layout():
+    return html.Div(className="two_columns", children=[
+        html.Div(className="graphContainer", children=[
+        html.H1("Graph View"),
+        dcc.Loading(
+            id="loading_gr",
+            type="default",
+            children=[
+                cyto.Cytoscape(
+                    id='gr',
+                    layout={
+                        'name': 'preset',
+                        'animate': False,
+                        'fit': True,
+                    },
+                    style={'width': '100%', 'height': '1000px'},
+                    elements={},
+                    stylesheet = graph_stylesheet) 
+            ])
         ]),
         html.Div(className="nodeInfo", children=[
            html.H1("Node Info"),
@@ -318,19 +332,25 @@ def register_callback(app):
         relcount = 0
 
         replace_with = set()
+
+        SIMILAR_EDGE_WEIGHT = 0.6
+        CLUSTER_EDGE_WEIGHT = 0.6
+        ININSPE_EDGE_WEIGHT = 0.1
+        PARTOFS_EDGE_WEIGHT = 0.1
+        SHOWSPR_EDGE_WEIGHT = 0.1
         
         for n1, n2 in data['in_inspection']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, classes="inspection", weight=0)
+            graph.add_edge(n1, n2, classes="inspection", weight=ININSPE_EDGE_WEIGHT)
         for n1, n2 in data['similar_to']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, classes="dashed", weight=0.08)
+            graph.add_edge(n1, n2, classes="dashed", weight=SIMILAR_EDGE_WEIGHT)
         for n1, n2 in data['visually_similar_to']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, classes="dotted", weight=0.08)
+            graph.add_edge(n1, n2, classes="dotted", weight=SIMILAR_EDGE_WEIGHT)
         for n1, n2 in data['in_mosaic']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
@@ -340,16 +360,16 @@ def register_callback(app):
         for n1, n2 in data['in_cluster']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, weight=0.1)
+            graph.add_edge(n1, n2, weight=CLUSTER_EDGE_WEIGHT)
 
         for n1, n2 in data['part_of_ship']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, weight=0.01)
+            graph.add_edge(n1, n2, weight=PARTOFS_EDGE_WEIGHT)
         for n1, n2 in data['shows_part']:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
-            graph.add_edge(n1, n2, weight=0.02, classes="part")
+            graph.add_edge(n1, n2, weight=SHOWSPR_EDGE_WEIGHT, classes="part")
 
         for image, mosaic in replace_with:
             for n1, n2, data in graph.edges(image, data=True):
@@ -359,11 +379,6 @@ def register_callback(app):
             graph.remove_node(image)
 
 
-        
-        
-
-        print("pre layout jobs...")
-
         positions_by_pca = {
             key: (float(tup['tsne'].split(',')[0]),float(tup['tsne'].split(',')[1]))
             
@@ -371,8 +386,11 @@ def register_callback(app):
          
         fixed_positions = [k for k in positions_by_pca.keys()]
         print(f"loaded result, got {len(node_tuples)} nodes and {relcount} relationships, layouting...")
+
         #pos = nx.spring_layout(graph, fixed = fixed_positions, pos = positions_by_pca, k=1/math.sqrt(graph.order() + 1), iterations=100)
-        pos = nx.spring_layout(graph, k=4/math.sqrt(graph.order() + 1), iterations=200)
+
+        pos = nx.spring_layout(graph, scale=1000, k=10/math.sqrt(graph.order() + 1), iterations=300, seed=84365)
+
         elmts = redact_json_data(nx.cytoscape_data(graph), pos)['elements']
         print(f"done")
 
