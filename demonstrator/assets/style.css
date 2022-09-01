@@ -86,7 +86,7 @@ body {
 }
 .main_page_container {
     width: 100%;
-    min-height: 700px;
+    min-height: 850px;
     overflow: none;
     display: flex;
     flex-flow: column;

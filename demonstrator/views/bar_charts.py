@@ -4,7 +4,7 @@ import dash_cytoscape as cyto
 import plotly.express as px
 from plotly import graph_objects as go
 
-from data_manager import FilterOptions, get_frames_angle
+from data_manager import FilterOptions, get_frames_angle, get_headings_hist
 
 
 
@@ -12,9 +12,11 @@ from data_manager import FilterOptions, get_frames_angle
 def layout():
 
     
-    return html.Div(className="two_columns", children=[
-        html.Div(className="graphContainer",id="img_direction"),
-        html.Div(className="nodeInfo", id="frameList")
+    return dcc.Loading([
+        html.Div(className="two_columns", children=[
+            html.Div(className="graphContainer",id="img_direction"),
+            html.Div(className="nodeInfo", id="frameList")
+        ])
     ])
 
 def title():
@@ -25,11 +27,10 @@ def register_callback(app):
     g_to_inspection = []
     @app.callback(
         Output(component_id='frameList', component_property='children'),
-        State(component_id='data_store', component_property='data'),
         State(component_id='filter_store', component_property= 'data'),
         Input(component_id={'type':'heading_graph', 'index': ALL}, component_property='clickData'),
     )
-    def update_nodes_table(data_store, filter_store, click_data):
+    def update_nodes_table(filter_store, click_data):
         filter_options = FilterOptions(**filter_store)
         if not hasattr(update_nodes_table, 'old_data'):
             update_nodes_table.old_data = click_data
@@ -41,21 +42,22 @@ def register_callback(app):
                 changed = g_to_inspection[i]
                 changed_angle = d['points'][0]['theta']
 
-        s = ""
         if changed is not None:
            frames = get_frames_angle(changed, (changed_angle + 360) % 360, filter_options) 
            return [html.Img(src=f"/assets/imgs/{'mosaics' if f['path'].startswith('m') else 'frames'}/{f['path']}", style={'width':'100%'}) for f in frames]
 
         update_nodes_table.old_data = click_data
-        return "Select sector to show frames" if changed is None else s
+        return "Select sector to show frames"
     
     @app.callback(
         Output(component_id='img_direction', component_property='children'),
-        Input(component_id='data_store', component_property='data'),
+        Input(component_id='filter_store', component_property='data'),
     )
-    def update_image_table(data):
+    def update_image_table(filter_options):
+        filter_options = FilterOptions(**filter_options)
+        heading_hist = get_headings_hist(filter_options)
         graphs = []
-        for inspection_id, heading_hist in data['heading_hist'].items():
+        for inspection_id, heading_hist in heading_hist.items():
             g_to_inspection.append(inspection_id)
             title=f"{heading_hist['ship_name']} on {heading_hist['date']}"
             fig = px.bar_polar(heading_hist['data'], r="count", theta="heading", width=800, height=800, title=title)

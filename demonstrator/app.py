@@ -62,7 +62,6 @@ def render_tabs_content(tab):
     return sites[int(tab)].layout()
 
 
-data_manager.register_callbacks(app)
 controls.register_callbacks(app)
 
 for site in sites:

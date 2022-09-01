@@ -3,7 +3,7 @@ import uuid
 from dash import dcc, Input, Output, State, html, dash_table
 import dash_cytoscape as cyto
 import plotly.express as px
-from data_manager import get_frames_cluster
+from data_manager import FilterOptions, get_cluster_table, get_frames_cluster
 
 
 
@@ -35,9 +35,11 @@ def layout():
         'sort_action':"native",
         'sort_by': [{'column_id': 'quality', 'direction': 'desc'}]
     }
-    return html.Div(className="two_column", children=
+    return html.Div(className="two_column", children=[dcc.Loading(
         [html.Div(className="graphContainer", id="clusters_table_container", children=[dash_table.DataTable(id='clusters_table', columns=columns, **table_options)]),
-        html.Div(className="nodeInfo", style={'width':'25%'}, id="cluster_info", children=["yes its me"])])
+        html.Div(className="nodeInfo", style={'width':'25%'}, id="cluster_info", children=[])
+        ])
+        ])
 
 def title():
     return 'Clusters'
@@ -45,10 +47,12 @@ def title():
 def register_callback(app):
     @app.callback(
         Output(component_id='clusters_table', component_property='data'),
-        Input(component_id='data_store', component_property='data'),
+        Input(component_id='filter_store', component_property='data'),
     )
-    def update_image_table(data):
-        return data['clusters_table']
+    def update_image_table(filter_options):
+        filter_options = FilterOptions(**filter_options)
+        cluster_table = get_cluster_table(filter_options)
+        return cluster_table
 
     @app.callback(
         Output(component_id='cluster_info', component_property='children'),

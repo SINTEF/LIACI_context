@@ -190,6 +190,8 @@ from py2neo import NodeMatcher, Graph, RelationshipMatcher
 
 import networkx as nx
 
+from data_manager import FilterOptions, get_graph_stuff
+
 finding = ['defect', 'corrosion', 'marine_growth', 'paint_peel', 'anode', 'over_board_valve', 'propeller', 'sea_chest_grating', 'bilge_keel']
 
 empty_elements = {
@@ -310,20 +312,19 @@ def title():
 def register_callback(app):
     @app.callback(
         Output(component_id='gr', component_property='elements'),
-        Input(component_id='data_store', component_property='data'),
-        State(component_id='filter_store', component_property='data'),
+        Input(component_id='filter_store', component_property='data'),
     )
-    def update_graph(data, filter_options):
+    def update_graph(filter_options):
+        filter_options = FilterOptions(**filter_options)
 
-        print('updating graph...')
+        nodes, similar_to, visually_similar_to, in_inspection, in_mosaic, in_cluster, shows_part, part_of_ship = get_graph_stuff(filter_options)
+
         graph = nx.Graph()
-        nodes = data['nodes']
         if len(nodes) == 0:
             return empty_elements
 
 
         node_tuples = []
-        #node_tuples = random.sample([(key, value) for key, value in nodes.items()], k=min(len(nodes.items()), 100))
         node_tuples = [(key, value) for key, value in nodes.items()]
         node_keys = {k for k,_ in node_tuples}
 
@@ -339,34 +340,34 @@ def register_callback(app):
         PARTOFS_EDGE_WEIGHT = 0.1
         SHOWSPR_EDGE_WEIGHT = 0.1
         
-        for n1, n2 in data['in_inspection']:
+        for n1, n2 in in_inspection:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, classes="inspection", weight=ININSPE_EDGE_WEIGHT)
-        for n1, n2 in data['similar_to']:
+        for n1, n2 in similar_to:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, classes="dashed", weight=SIMILAR_EDGE_WEIGHT)
-        for n1, n2 in data['visually_similar_to']:
+        for n1, n2 in visually_similar_to:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, classes="dotted", weight=SIMILAR_EDGE_WEIGHT)
-        for n1, n2 in data['in_mosaic']:
+        for n1, n2 in in_mosaic:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             replace_with.add((n1, n2))
             graph.add_edge(n1, n2)
 
-        for n1, n2 in data['in_cluster']:
+        for n1, n2 in in_cluster:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, weight=CLUSTER_EDGE_WEIGHT)
 
-        for n1, n2 in data['part_of_ship']:
+        for n1, n2 in part_of_ship:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, weight=PARTOFS_EDGE_WEIGHT)
-        for n1, n2 in data['shows_part']:
+        for n1, n2 in shows_part:
             if not n1 in node_keys or not n2 in node_keys: continue
             relcount += 1
             graph.add_edge(n1, n2, weight=SHOWSPR_EDGE_WEIGHT, classes="part")
@@ -378,21 +379,8 @@ def register_callback(app):
                 graph.add_edge(n1, n2, **data)
             graph.remove_node(image)
 
-
-        positions_by_pca = {
-            key: (float(tup['tsne'].split(',')[0]),float(tup['tsne'].split(',')[1]))
-            
-            for key, tup in node_tuples if 'tsne' in tup} 
-         
-        fixed_positions = [k for k in positions_by_pca.keys()]
-        print(f"loaded result, got {len(node_tuples)} nodes and {relcount} relationships, layouting...")
-
-        #pos = nx.spring_layout(graph, fixed = fixed_positions, pos = positions_by_pca, k=1/math.sqrt(graph.order() + 1), iterations=100)
-
         pos = nx.spring_layout(graph, scale=1000, k=10/math.sqrt(graph.order() + 1), iterations=300, seed=84365)
-
         elmts = redact_json_data(nx.cytoscape_data(graph), pos)['elements']
-        print(f"done")
 
         return elmts
 
