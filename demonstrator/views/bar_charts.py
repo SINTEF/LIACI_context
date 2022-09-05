@@ -20,7 +20,7 @@ def layout():
     ])
 
 def title():
-    return 'Bar charts'
+    return 'Headings'
 
 def register_callback(app):
 
