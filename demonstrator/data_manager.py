@@ -32,7 +32,7 @@ def get_inspections():
         return {i['i']: i['id'] for i in tx.run(query)}
 
 def get_frames_angle(inspection_id, heading, filter_options = None):
-    query = f"""MATCH (insp:Inspection{'{id:' +inspection_id+'}'}) -[:HAS_FRAME]-> (i:Image) where (round((i.Heading - coalesce(insp.ship_heading, 0) + 180)/30)*30)%360 = {heading}
+    query = f"""MATCH (insp:Inspection{{id:{inspection_id}}}) -[:HAS_FRAME]-> (i:Image) where (round((i.Heading - coalesce(insp.ship_heading, 0) + 180)/30)*30)%360 = {heading}
         {get_findings_where_clause(filter_options, "AND")}
         {'with i OPTIONAL MATCH (i) -[:IN_MOSAIC]-> (m:Mosaic) with coalesce(m.seg_image_file, i.thumbnail) as image_path, coalesce(m.uciqe, i.uciqe) as uciqe' 
             if filter_options.mosaics else 'with i.thumbnail as image_path, i.uciqe as uciqe'}
