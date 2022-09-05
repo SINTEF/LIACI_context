@@ -16,11 +16,11 @@ def layout():
         html.P('Telemetry Similarities'),
         dcc.Slider(id="telemetry_similarities", min=0, max=5,  value=1.5),
         html.P('Visual Similarities'),
-        dcc.Slider(id="visual_similarities", min=0, max=5, value=2),
+        dcc.Slider(id="visual_similarities", min=0, max=20, value=10),
         html.P('Image Quality'),
         dcc.Slider(id="quality_slider", min=0, max=15, value=4),
-        html.H4('Image Stitching'),
-        dcc.Checklist(['mosaics'], id='extras_cl'),
+        html.H4('Extras'),
+        dcc.Checklist(['mosaics', 'clusters'], value=['clusters'], id='extras_cl'),
         html.H4('Inspection criteria'),
         dcc.Checklist(['marine growth', 'paint peel', 'corrosion', 'defect'], id='defects_cl'),
         html.H4('Classifications'),
@@ -47,6 +47,7 @@ def register_callbacks(app):
             inspections = [title_to_id[t] for t in inspections]
         if extras is None: extras = []
         mosaics = 'mosaics' in extras
+        clusters = 'clusters' in extras
         key_frames = 'key_frames' in extras
 
         if defects is None: defects = []

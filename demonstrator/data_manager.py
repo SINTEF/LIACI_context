@@ -12,6 +12,7 @@ class FilterOptions():
     telemetry_similarities: float
     image_quality_threshold: float
     mosaics: bool
+    clusters: bool
     key_frames: bool
     filter_id: str
 
@@ -127,16 +128,17 @@ def get_graph_stuff(filter_options):
                 nodes[mosaic_id] = dict(mosaic.nodes[0])
                 in_mosaic.add((image_id, mosaic_id))
 
-    query_cluster_nodes = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[:IN_CLUSTER]-> (c:Cluster) RETURN i, c"""
-    with neo4j_transaction() as tx:
-        cursor = tx.run(query_cluster_nodes)
-        results = [(r['i'], r['c']) for r in cursor]
-        for image, cluster in results:
-            image_id = f"im_{image['id']}"
-            cluster_id = f"{cluster['id']}"
-            if cluster_id.endswith("-1"): continue
-            nodes[cluster_id] = dict(cluster.nodes[0])
-            in_cluster.add((image_id, cluster_id))
+    if filter_options.clusters:
+        query_cluster_nodes = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[:IN_CLUSTER]-> (c:Cluster) RETURN i, c"""
+        with neo4j_transaction() as tx:
+            cursor = tx.run(query_cluster_nodes)
+            results = [(r['i'], r['c']) for r in cursor]
+            for image, cluster in results:
+                image_id = f"im_{image['id']}"
+                cluster_id = f"{cluster['id']}"
+                if cluster_id.endswith("-1"): continue
+                nodes[cluster_id] = dict(cluster.nodes[0])
+                in_cluster.add((image_id, cluster_id))
 
 
     """
