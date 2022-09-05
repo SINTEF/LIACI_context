@@ -19,7 +19,7 @@ if [ -f /data/url ] ; then
 fi
 
 # Remove everything in /data, this is outdated
-rm -vrf /data/*
+rm -rf /data/*
 
 # Create a temporary file
 tempfile=$(mktemp)
@@ -28,10 +28,11 @@ tempfile=$(mktemp)
 curl "$url" > "$tempfile"
 
 # Unzip the file into data folder
-unzip -o "$tempfile" -d /data
+unzip -o -q "$tempfile" -d /data
 
 mv /data/imgs/* /data/
 
-echo "downloaded and extracted $(ls -l /data/frames | wc -l) frames and $(ls -l /data/mosaics | wc -l) mosaics"
+echo "downloaded and extracted $(ls /data/frames | wc -l) frames and $(ls /data/mosaics | wc -l) mosaics"
+echo "$(date): downloaded and extracted $(ls /data/frames | wc -l) frames and $(ls /data/mosaics | wc -l) mosaics from $url" >> /data/logs
 # Write the url in the /data/url file
 echo "$url" > /data/url

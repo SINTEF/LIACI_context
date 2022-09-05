@@ -6,3 +6,4 @@ data/imgs/frames/*.jpg
 pipeline/image_bw_vectors_pickle.pyp
 pipeline/image_vectors_pickle.pyp
 api
+demonstrator/deployment/demonstrator-init/data_test

@@ -28,7 +28,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 data:
-  assetsUrl: https://liacidvc.blob.core.windows.net/liaci/imgs.zip
+  #assetsUrl: https://liacidvc.blob.core.windows.net/liaci/imgs.zip
+  assetsUrl: https://joseph-hirsch.de/licon/imgs.zip
   databaseDumpUrl: https://liacidvc.blob.core.windows.net/liaci/licon-neo4j.dump
 
 persistence:
