@@ -20,7 +20,7 @@ COPY neo4j_datastore.py .
 COPY main.sh . 
 
 COPY assets/LiaciContextLogo.png assets/
-COPY assets/SintefLogo.png assets/
+COPY assets/sintef_logo.png assets/
 COPY assets/style.css assets/
 COPY assets/favicon.ico assets/
 
