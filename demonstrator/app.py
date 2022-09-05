@@ -32,7 +32,7 @@ app.layout = html.Div(className='main_page_container', children=[
     dcc.Store(id='filter_store'),
     dcc.Store(id='data_store'),
     html.Div(className='header', children=[
-        html.Img(src='assets/SintefLogo.png'),
+        html.Img(src='assets/sintef_logo.png'),
         html.Img(src='assets/LiaciContextLogo.png')
     ]),
     html.Div(className='two_columns', children=[
