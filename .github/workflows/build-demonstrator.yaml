@@ -35,12 +35,6 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=ref,event=pr
-            type=sha
 
       - name: Build demonstrator docker image
   
@@ -65,7 +59,7 @@ jobs:
           ssh-key: ${{secrets.GITOPS_REPOSITORY_SSH_KEY}}
       - name: Patch version
         run: |
-          yq --inplace '.image.tag |= "sha-'$(git rev-parse --short $GITHUB_SHA)'"' deployments/liaci-context/image-tag.yaml
+          yq --inplace '.image.tag |= "sha-'$GITHUB_REF_NAME'"' deployments/liaci-context/image-tag.yaml
       - name: Commit and push
         run: |
           git config user.email "gitops@sintef.cloud"
