@@ -62,7 +62,7 @@ jobs:
           yq --inplace '.image.tag |= "sha-'$GITHUB_REF_NAME'"' deployments/liaci-context/image-tag.yaml
       - name: Commit and push
         run: |
-          git config user.email "gitops@sintef.cloud"
+          git config user.email "114478573+sintef-sct-ci-machine-account@users.noreply.github.com"
           git config user.name "GitOps"
           git commit -am "GitOps update for LIACi Context"
           git pull --rebase
