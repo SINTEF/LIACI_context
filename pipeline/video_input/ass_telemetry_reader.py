@@ -76,12 +76,13 @@ def interpolate_for_all_frames(telemetry_json, num_of_frames):
     upsampled_array = pd.date_range(start=telemetry_dict['time'][0], end=telemetry_dict['time'][-1], periods=num_of_frames)
     t = df.index
     df = df[~df.index.duplicated()]
+    df['Heading'] = np.rad2deg(np.unwrap(np.deg2rad(df['Heading'])))
     interpolated = df.reindex(t.union(upsampled_array)).interpolate('index').loc[upsampled_array]
+    interpolated['Heading'] %= 360
     interpolated.insert(0, 'frame_index', np.arange(0, num_of_frames, dtype=int))
-
     return interpolated
 
 def read_telemetry_data(ass_file, frame_count):
     telemetry_json = get_telemetry_data(ass_file)
     telemetry_df = interpolate_for_all_frames(telemetry_json, frame_count)
-    return telemetry_df #json.loads(telemetry_df.to_json())
+    return telemetry_df 

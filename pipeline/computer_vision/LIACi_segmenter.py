@@ -7,20 +7,38 @@ Created on Sat Sep 15 10:58:34 2021
 
 from itertools import count
 import os
+import sys
 import numpy as np
 import cv2
 import time
 import math
 import onnxruntime as rt
 from PIL import ImageColor
+from PIL import ImageOps, Image
 from functools import reduce
+
+def blendImages(background, foreground):
+
+    output = np.zeros_like(background) 
+    # normalize alpha channels from 0-255 to 0-1
+    alpha_background = background[:,:,3] / 255.0
+    alpha_foreground = foreground[:,:,3] / 255.0
+
+    # set adjusted colors
+    for color in range(0, 3):
+        output[:,:,color] = alpha_foreground * foreground[:,:,color] + \
+            alpha_background * background[:,:,color] * (1 - alpha_foreground)
+
+    # set adjusted alpha and denormalize back to 0-255
+    output[:,:,3] = (1 - (1 - alpha_foreground) * (1 - alpha_background)) * 255
+    return output
 
 
 class LIACi_segmenter():
     """Class for semantic segmentation
     """
     CONF_THRESHOLD = 0.5  # Confidence threshold
-    MASK_THRESHOLD = 0.85  # Mask threshold
+    MASK_THRESHOLD = 0.5  # Mask threshold
 
     def __init__(self, image=None,  prob_threshold=0.15, max_detections = 20):
         """Initialize the class
@@ -63,10 +81,12 @@ class LIACi_segmenter():
     
 
     # Draw the predicted bounding box, colorize and show the mask on the image
-    def draw(self, boxes, masks, scores, labels):
-        masked_image = self.image
+    def draw(self, boxes, masks, scores, labels, putText=False):
+        background = cv2.cvtColor(np.array(self.image), cv2.COLOR_RGB2RGBA) #np.array(ImageOps.grayscale(Image.fromarray(self.image)).convert("RGB")) 
+        masked_image = np.zeros_like(background) #np.array(ImageOps.grayscale(Image.fromarray(self.image)).convert("RGB"))
+        masked_image_other = np.zeros_like(background) #np.array(ImageOps.grayscale(Image.fromarray(self.image)).convert("RGB"))
         legend_shift = 0
-        for i in range(len(masks)):
+        for i in reversed(range(len(masks))):
             mask = masks[i]
             color = self.COLORS[i]
 
@@ -74,11 +94,12 @@ class LIACi_segmenter():
             r = np.zeros_like(mask).astype(np.uint8)
             g = np.zeros_like(mask).astype(np.uint8)
             b = np.zeros_like(mask).astype(np.uint8)
+            a = 148
             r[mask == 1], g[mask == 1], b[mask == 1] = color
-            bgr_color = (color[2],color[1],color[0])
+            bgr_color = (color[2],color[1],color[0],a)
             bgr_mask = np.stack([b, g, r], axis=2)
             # sea_chest_grating
-            # over_board_valves
+            # over_board_valve
             # defect
             # corrosion
             # paint_peel
@@ -87,11 +108,16 @@ class LIACi_segmenter():
             # bilge_keel
             # marine_growth
             # ship_hull
-            #if self.labels[i] == "corrosion" or self.labels[i] == "defect" or self.labels[i] == "marine_growth" or self.labels[i] == "paint_peel":
-            masked_image = cv2.addWeighted(masked_image, 1, bgr_mask, 1, 0)
+            if self.labels[i] == "corrosion" or self.labels[i] == "defect" or self.labels[i] == "marine_growth" or self.labels[i] == "paint_peel":
+                #masked_image = cv2.addWeighted(masked_image, 0.5, bgr_mask, 1, 0)
+                masked_image[mask == 1] = bgr_color
+            else:
+                #masked_image_other = cv2.addWeighted(masked_image_other, 0.5, bgr_mask, 1, 0)
+                masked_image_other[mask == 1] = bgr_color
             # plot legend
-            cv2.rectangle(masked_image, (10, 20+legend_shift), (10+20, 20+legend_shift+10), bgr_color, -1)
-            cv2.putText(masked_image, self.labels[i], (35, 30+legend_shift), cv2.FONT_HERSHEY_SIMPLEX, 0.7, bgr_color, 2)
+            if putText: 
+                cv2.rectangle(masked_image, (10, 20+legend_shift), (10+20, 20+legend_shift+10), bgr_color, -1)
+                cv2.putText(masked_image, self.labels[i], (35, 30+legend_shift), cv2.FONT_HERSHEY_SIMPLEX, 0.7, bgr_color, 2)
             legend_shift = legend_shift+20
 
             if boxes is not None:
@@ -105,10 +131,13 @@ class LIACi_segmenter():
             if scores is not None:
                 text = "{}: {:.4f}".format(self.labels[i], scores[i])
                 cv2.putText(self.image, text, (x0, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness=2)
-        
-        self.image = masked_image
+
+
+        self.image_inspc = blendImages(background, masked_image)# cv2.addWeighted(bw_image, 0.7, masked_image, 0.7, 0)
+        self.image_class = blendImages(background, masked_image_other)#cv2.addWeighted(bw_image, 0.7, masked_image_other, 0.7, 0)
 
             
+    
     
     def getPercentage(self, masksA, masksB):
         ''' calculates the the percentage that maskB is
@@ -155,7 +184,7 @@ class LIACi_segmenter():
         counts = {self.labels[i]: (np.count_nonzero(masks[:,:,i] > self.MASK_THRESHOLD) / (h_n * w_n)) for i in labels}
         return counts
 
-    def segment_unet(self, frame = None):
+    def segment_unet(self, frame = None, visualize = False):
         if frame is not None:
             self.image = frame
         # Get the input name of the model
@@ -185,7 +214,8 @@ class LIACi_segmenter():
             masks_full_res.append(mask_th)
 
         # Extract the bounding box and mask for each of the detected objects
-        #self.draw(None, masks_full_res, None, labels)
+        if visualize:
+            self.draw(None, masks_full_res, None, labels)
 
         return [
             {'probability': None,
@@ -277,46 +307,24 @@ def write_labels_to_video(video_url):
     cap.release()
 
 if __name__ == '__main__':  
-    video_url = "C:\\Users\\marynaw\\data\\LIACi\\Videos\\Log_file_example\\2022-02-21_08.40.50.mp4"
-    #video_url = "C:\\Users\\marynaw\\data\\LIACi\\Videos\\7 1269 Aqua Senior\\2021-11-18_12.18.04.mp4"
-    write_labels_to_video(video_url)
-
-
     my_segmenter = LIACi_segmenter()
+
     # Create a list of labels.
-    dict_keys_header = ['id', 'img_file_name']
-    for l in my_segmenter.labels: 
-        dict_keys_header.append(l.strip())
-            
-    book_marks_list = []
+    IMAGE_FILENAME = sys.argv[1]
+    image_in = cv2.imread(IMAGE_FILENAME)            
+    outputs = my_segmenter.segment_unet(frame=image_in, visualize=True)
+    print(f"RGB values for labels:")
+    for l, rgb in zip(my_segmenter.labels, my_segmenter.COLORS):
+        print(f"  {l:<20}: {rgb}")
+    # show the output image
+    #cv2.imshow("Segmented by class", my_segmenter.image_class)
+    # cv2.imshow("Segmented by inpsection criteria", my_segmenter.image_inspc)
+    # cv2.waitKey(0)
 
-    data_dir = "C:\\Users\\marynaw\\data\\LIACi\\"
-    IMAGE_FILENAME = 'DSC01327-1024x768.jpg'
-    files_list = os.listdir(data_dir+'test_images\\')
-    for file in os.listdir(data_dir+'test_images\\'):#list([IMAGE_FILENAME])
-        book_mark_entry = {
-                        'id': '',
-                        'img_file_name': ''
-                        }
-
-        image_in = cv2.imread(data_dir+'test_images\\'+file)            
-        my_segmenter.image = image_in
-        outputs = my_segmenter.segment_unet()
-        
-        #print(outputs)
-        masks_shiphull = []
-        masks_covering = []
-        for object in outputs:
-            if object['tagName'] == 'ship_hull':
-                mask = np.reshape(object['mask']['mask_array'], (object['mask']['height'],object['mask']['width']))
-                masks_shiphull.append(np.array(mask, dtype="uint8"))
-            if object['tagName'] == 'paint_peel':
-                mask = np.reshape(object['mask']['mask_array'], (object['mask']['height'],object['mask']['width']))
-                masks_covering.append(np.array(mask, dtype="uint8"))
-        percent_cov = my_segmenter.getPercentage(masks_shiphull, masks_covering)
-        # show the output image
-        cv2.imshow("Image", my_segmenter.image)
-        cv2.waitKey(0)
+    if len(sys.argv) > 2 and '-s' == sys.argv[2]:
+        cv2.imwrite(f"{sys.argv[3]}/{os.path.basename(IMAGE_FILENAME)}", image_in)
+        cv2.imwrite(f"{sys.argv[3]}/{os.path.basename(IMAGE_FILENAME)}_segmented_classes.png", my_segmenter.image_class)
+        cv2.imwrite(f"{sys.argv[3]}/{os.path.basename(IMAGE_FILENAME)}_segmented_inspcrit.png", my_segmenter.image_inspc)
 
     print('Segmentation is DONE')
 

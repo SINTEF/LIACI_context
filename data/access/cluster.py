@@ -9,10 +9,10 @@ from py2neo.matching import NodeMatcher
 
 import py2neo
 
-def create_or_attach(frame: py2neo.Node, cluster_id: str):
+def create_or_attach(frame: py2neo.Node, cluster_id: str, cluster_number: int):
     cluster_node = find_node(ClusterNode(cluster_id).label, id=cluster_id)
     if cluster_node is None:
-        cluster_node = create_cluster(ClusterNode(cluster_id))
+        cluster_node = create_cluster(ClusterNode(cluster_id, cluster_number))
     else:
         if find_relation((frame, cluster_node), "IN_CLUSTER") is not None:
             return

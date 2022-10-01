@@ -24,7 +24,7 @@ def layout():
         html.H4('Inspection criteria'),
         dcc.Checklist(['marine growth', 'paint peel', 'corrosion', 'defect'], id='defects_cl'),
         html.H4('Classifications'),
-        dcc.Checklist(['anode', 'propeller', 'bilge keel', 'sea chest grating', 'over board valves'], id='findings_cl'),
+        dcc.Checklist(['anode', 'propeller', 'bilge keel', 'sea chest grating', 'over board valve'], id='findings_cl'),
     ])
 
 def register_callbacks(app):

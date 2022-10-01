@@ -19,9 +19,7 @@ class ImageNode(object):
     imo : str
     framenumber : str
     inspection_id : str
-    video_source : str
     thumbnail : str
-    uiqm : float
     uciqe : float
     telemetry : dict = None
     classes : dict = None
@@ -33,18 +31,18 @@ class ImageNode(object):
             setattr(self, label, value)
 
         for label in ['anode', 'bilge_keel', 'sea_chest_grating', 'defect', 'corrosion', 'marine_growth', 'over_board_valve', 'paint_peel', 'propeller']:
-            score = []
+            score = 0
             if label in self.classes:
-                score.append(self.classes[label])
+                if self.classes[label] > 0.5: score+=1 #Confidence Threshold taken from the SDD of the Liaci project documentation
                 setattr(self, f"{label}_classification", self.classes[label])
             if label in self.objects:
-                score.append(self.objects[label])
                 setattr(self, f"{label}_detection", self.objects[label])
             if label in self.segmentation:
-                score.append(min(self.segmentation[label] * 200, 1.0))
+                if self.segmentation[label] > 0: # At least some area of the image is detected to be the label. The threshold is set in the segmenter.
+                    score += 1
                 setattr(self, f"{label}_segmentation", self.segmentation[label])
 
-            setattr(self, label, sum(score) / len(score))
+            setattr(self, label, score)
 
         delattr(self, 'telemetry')
         delattr(self, 'classes')

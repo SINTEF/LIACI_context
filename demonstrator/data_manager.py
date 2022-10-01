@@ -269,7 +269,8 @@ def get_tables(filter_options):
 # 'clusters_table': []
 def get_cluster_table(filter_options):
     images_and_inspections = _q_images_and_inspections(filter_options)
-    query_clusters = f"""{images_and_inspections} AND i.dbscan_cluster <> -1 WITH ins.id as inspection_id, i.dbscan_cluster as cluster, 
+    query_clusters = f"""{images_and_inspections} WITH ins.id as inspection_id, i 
+        MATCH (i) -[:IN_CLUSTER]-> (c:Cluster) WHERE c.number <> -1 WITH inspection_id, c.number as cluster, 
         collect(CASE WHEN i.marine_growth > 0.8 THEN 1 ELSE 0 END) as mg ,
         collect(CASE WHEN i.corrosion > 0.8 THEN 1 ELSE 0 END) as co ,
         collect(CASE WHEN i.paint_peel > 0.8 THEN 1 ELSE 0 END) as pp ,

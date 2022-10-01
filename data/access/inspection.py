@@ -3,6 +3,11 @@ from py2neo import Node, Relationship
 
 from data.access.datastore import EntryDoesExistExeption, find_node, neo4j_transaction
 
+def list():
+    query = "MATCH (s:Ship) -[:HAS_INSPECTION]-> (i:Inspection) RETURN DISTINCT s.name+' on '+i.date as i, i.id as id"
+    with neo4j_transaction() as tx:
+        return {i['i']: i['id'] for i in tx.run(query)}
+
 def create(inspection: LiInspection, fail_on_exists = False) -> Node:
     inspection_node = find_node(inspection.label, id=inspection.id)
     if inspection_node:

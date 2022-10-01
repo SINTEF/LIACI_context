@@ -7,5 +7,7 @@ from dataclasses_json import dataclass_json
 class ClusterNode(object):
     label : str = field(default="Cluster", init=False)
     id: str
+    number: int = field(default=0)
+
     
     

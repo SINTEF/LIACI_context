@@ -6,6 +6,7 @@
     "configurations": [
 
 
+
         {
             "name": "Launch app",
             "cwd": "${workspaceFolder}/demonstrator",
@@ -17,11 +18,12 @@
             "justMyCode": true
         },
         {
-            "name": "context_main",
+            "name": "inference",
             "python": "/usr/bin/python",
             "type": "python",
             "request": "launch",
             "program": "main.py",
+            "args": ["analyze", "../../"],
             "cwd": "${workspaceFolder}/pipeline",
             "console": "integratedTerminal",
             "justMyCode": true
@@ -31,8 +33,9 @@
             "python": "/usr/bin/python",
             "type": "python",
             "request": "launch",
-            "program": "pipeline/similarity_pipeline.py",
-            "cwd": "${workspaceFolder}",
+            "program": "main.py",
+            "args": ["similarities"],
+            "cwd": "${workspaceFolder}/pipeline",
             "console": "integratedTerminal",
             "justMyCode": true
         },

@@ -8,14 +8,6 @@ from py2neo.matching import NodeMatcher
 
 import py2neo
 
-def merge(frame: ImageNode, **kwargs):
-    frame_node = find_node(frame.label, id=frame.id)
-    if not frame_node:
-        create(frame, **kwargs)
-    with neo4j_transaction() as tx:
-        frame_node = py2neo.Node(frame.label, **frame.__dict__)
-        tx.merge(frame_node)
-
 def merge_node(mosaic: py2neo.Node):
     with neo4j_transaction() as tx:
         tx.graph.push(mosaic)
@@ -36,18 +28,7 @@ def create_mosaic(mosaic: MosaicNode):
             tx.create(mosaic_node)
     return mosaic_node
 
-def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.9):
-    frame_node = find_node(frame.label, id=frame.id)
-
-    if frame_node:
-        if fail_on_exists:
-            raise EntryDoesExistExeption("Frame already exists!")
-        else:
-            return frame_node
-
-    ship_node = find_node(LiShip().label, imo=frame.imo)
-    if not ship_node:
-        raise ValueError(f"No or multiple ship found for imo {frame.imo}")
+def create(frame: ImageNode, inspection_node, classification_threshold=0.9):
 
     inspection_node = find_node(LiInspection().label, id=frame.inspection_id)
     if not inspection_node:
@@ -78,8 +59,8 @@ def create(frame: ImageNode, fail_on_exists = False, classification_threshold=0.
         frame_node = py2neo.Node(frame.label, **frame.__dict__) 
         tx.create(frame_node)
 
-        inspaction_relation = py2neo.Relationship(inspection_node, "HAS_FRAME", frame_node)
-        tx.create(inspaction_relation)
+        inspection_relation = py2neo.Relationship(inspection_node, "HAS_FRAME", frame_node)
+        tx.create(inspection_relation)
 
         for k, v in frame.__dict__.items():
             if k in classlabel_to_vis:

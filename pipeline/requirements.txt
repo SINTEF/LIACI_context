@@ -1,5 +1,5 @@
 opencv-python==4.5.5.64
-onnxruntime-gpu==1.11.1
+onnxruntime-gpu==1.12.1
 Pillow==9.1.1
 ass==0.5.2
 pandas==1.4.2
@@ -22,3 +22,4 @@ torch==1.12.0
 torchvision==0.13.0
 img2vec-pytorch==1.0.1
 dataclasses-json==0.5.7
+click==8.1.3

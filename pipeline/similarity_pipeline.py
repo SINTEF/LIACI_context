@@ -29,11 +29,23 @@ def sanitize_infitinty(i):
     except:
         return 0
 
-def do_similarity():
+def delete_all_similarities(inspection_filter = None):
+    with neo4j_transaction() as tx:
+        if inspection_filter is not None:
+            tx.run(f"MATCH (c:Cluster) <-[:IN_CLUSTER]- (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DETACH DELETE c")
+            tx.run(f"MATCH (i2:Image) <-[r]- (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DELETE r")
+        else:
+            tx.run(f"MATCH () <-[r:SIMILAR_TO]- () DELETE r")
+            tx.run(f"MATCH () <-[r:VISUALLY_SIMILAR_TO]- () DELETE r")
+            tx.run(f"MATCH (c:Cluster) DETACH DELETE r")
+
+def do_similarity(inspection_filter = None):
 
     im2vec = Img2Vec(cuda=True)
-
-    query = "MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
+    if inspection_filter is not None:
+        query = f"MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] RETURN n, i.id order by n.id asc"
+    else:
+        query = f"MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
 
     py2neonodes = [] #Py2Neo Node instances. They can be merged to neo4j again.
     inspection_ids = [] #Inspection ID for each node instance, has same length as py2neonodes
@@ -102,7 +114,6 @@ def do_similarity():
     vec_representations = {}
     imvec_representations = {}
     dbscan_clusters = {}
-    kmeans_clusters = {}
     for inspection, telvecs in vecs.items():
         vectors = [] 
         imvecs2 = imvecs[inspection]
@@ -129,8 +140,8 @@ def do_similarity():
             v = list(telvec)
             v.extend(imvec)
             vectors.append(v)
-        # K Means cluster finden
-        # DBSCAN ??
+
+        # DBSCAN 
 
         a = np.array(vectors)
 
@@ -141,8 +152,6 @@ def do_similarity():
         dbscan_clusters[inspection] = dbscan.fit_predict(a)
         print(f"found {np.max(dbscan_clusters[inspection]) + 1} clusters for in spection {inspection}")
     
-        #kmeans = KMeans(8)
-        #kmeans_clusters[inspection] = kmeans.fit_predict(a)
 
     vec_tree = {}
     imvec_tree = {}
@@ -163,19 +172,9 @@ def do_similarity():
         imvec = imvecs[inspection][id_in_inspection_list]
 
         dbscan_cluster = dbscan_clusters[inspection][id_in_inspection_list]
-        #kmeans_cluster = kmeans_clusters[inspection][id_in_inspection_list]
 
         cluster_id = f"c{inspection}.{dbscan_cluster}"
-        cluster_access.create_or_attach(node, cluster_id)
-
-        node['dbscan_cluster'] = int(dbscan_cluster)
-        #node['kmeans_cluster'] = int(kmeans_cluster)
-        
-        #node['pca'] = ','.join([f'{fv}' for fv in rpca][:2])
-        node['tsne'] = ','.join([f'{fv}' for fv in rtsne])
-
-        frame_access.merge_node(node)
-        # DONT Add similarities...
+        cluster_access.create_or_attach(node, cluster_id, int(dbscan_cluster))
 
         vec_distances, vec_neighbors = vec_tree[inspection].query(rtsne, k=5)
         imvec_distances, imvec_neighbors = imvec_tree[inspection].query(rpca, k=5)

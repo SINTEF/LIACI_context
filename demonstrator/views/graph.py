@@ -264,6 +264,7 @@ def redact_json_data(json_data, positions):
 
     for i, e in enumerate(json_data['elements']['edges']):
         if 'classes' in e['data']: e['classes'] = e['data']['classes']
+        e['data']['weight'] = e['data'].get('weight', 0.01)
     return json_data
 
 
@@ -273,7 +274,7 @@ legend_colors_segmenter = {
     'corrosion': (255, 255, 0),
     'defect': (255, 192, 203),
     'marine_growth': (0, 128, 0),
-    'over_board_valves': (64, 224, 208),
+    'over_board_valve': (64, 224, 208),
     'paint_peel': (255, 0, 0),
     'propeller': (128, 0, 128),
     'sea_chest_grating': (255, 255, 255),
