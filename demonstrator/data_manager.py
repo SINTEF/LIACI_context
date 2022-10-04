@@ -33,7 +33,7 @@ def get_inspections():
         return {i['i']: i['id'] for i in tx.run(query)}
 
 def get_frames_angle(inspection_id, heading, filter_options = None):
-    query = f"""MATCH (insp:Inspection{{id:{inspection_id}}}) -[:HAS_FRAME]-> (i:Image) where (round((i.Heading - coalesce(insp.ship_heading, 0) + 180)/30)*30)%360 = {heading}
+    query = f"""MATCH (insp:Inspection{{id:{inspection_id}}}) -[:HAS_FRAME]-> (i:Frame) where (round((i.Heading - coalesce(insp.ship_heading, 0) + 180)/30)*30)%360 = {heading}
         {get_findings_where_clause(filter_options, "AND")}
         {'with i OPTIONAL MATCH (i) -[:IN_MOSAIC]-> (m:Mosaic) with coalesce(m.seg_image_file, i.thumbnail) as image_path, coalesce(m.uciqe, i.uciqe) as uciqe' 
             if filter_options.mosaics else 'with i.thumbnail as image_path, i.uciqe as uciqe'}
@@ -44,18 +44,18 @@ def get_frames_angle(inspection_id, heading, filter_options = None):
         return [{'path': r['image_path'], 'uciqe': r['uciqe']} for r in cursor]
 
 def get_frames_cluster(inspection_id, cluster_id):
-    query = f"""MATCH (insp:Inspection{{id:{inspection_id}}}) -[:HAS_FRAME]-> (i:Image{{dbscan_cluster:{cluster_id}}}) return i.thumbnail as image_path, i.uciqe as uciqe order by i.framenumber asc"""
+    query = f"""MATCH (insp:Inspection{{id:{inspection_id}}}) -[:HAS_FRAME]-> (i:Frame) -[:IN_CLUSTER]-> (c:Cluster{{number:{cluster_id}}}) return i.thumbnail as image_path, i.uciqe as uciqe order by i.framenumber asc"""
     with neo4j_transaction() as tx:
         cursor = tx.run(query)
         return [{'path': r['image_path'], 'uciqe': r['uciqe']} for r in cursor]
 
 
 def _q_images_and_inspections(filter_options, ignore_quality = False):
-        return f"""MATCH (i:Image) <-[:HAS_FRAME]- (ins:Inspection) WHERE ins.id in [{','.join([f"{i}" for i in filter_options.inspections])}]{get_findings_where_clause(filter_options, " AND", ignore_quality = ignore_quality)}"""
+        return f"""MATCH (i:Frame) <-[:HAS_FRAME]- (ins:Inspection) WHERE ins.id in [{','.join([f"{i}" for i in filter_options.inspections])}]{get_findings_where_clause(filter_options, " AND", ignore_quality = ignore_quality)}"""
 
 def _q_all_images_and_inspections(filter_options):
-        neighbor_images = f"""{_q_images_and_inspections(filter_options)} WITH i, collect(i) as ilist MATCH (i) -[]- (i2:Image)"""
-        return f"""{neighbor_images} WITH ilist + collect(i2) as alli UNWIND alli as i MATCH (i:Image) <-[:HAS_FRAME]- (ins:Inspection)"""
+        neighbor_images = f"""{_q_images_and_inspections(filter_options)} WITH i, collect(i) as ilist MATCH (i) -[]- (i2:Frame)"""
+        return f"""{neighbor_images} WITH ilist + collect(i2) as alli UNWIND alli as i MATCH (i:Frame) <-[:HAS_FRAME]- (ins:Inspection)"""
 
 
 def get_graph_stuff(filter_options):
@@ -89,8 +89,8 @@ def get_graph_stuff(filter_options):
     query2/3: Other Images and their similarity
     """
 
-    query2 = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[r:SIMILAR_TO]- (i2:Image) WHERE r.distance < {filter_options.telemetry_similarities} RETURN i.id as i, i2.id as i2"""
-    query3 = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[r:VISUALLY_SIMILAR_TO]- (i2:Image) WHERE r.distance < {filter_options.visual_similarities} RETURN i.id as i, i2.id as i2"""
+    query2 = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[r:SIMILAR_TO]- (i2:Frame) WHERE r.distance < {filter_options.telemetry_similarities} RETURN i.id as i, i2.id as i2"""
+    query3 = f"""{graph_images} WITH i ORDER BY i.id LIMIT {LIMIT} MATCH (i) -[r:VISUALLY_SIMILAR_TO]- (i2:Frame) WHERE r.distance < {filter_options.visual_similarities} RETURN i.id as i, i2.id as i2"""
     with neo4j_transaction() as tx:
         cursor = tx.run(query2)
         results = [(r['i'], r['i2']) for r in cursor]
@@ -217,7 +217,7 @@ def get_histogram_data(filter_options:FilterOptions):
 def get_headings_hist(filter_options):
     heading_hist = {}
     query_headings = f"""match (insp:Inspection) <-[:HAS_INSPECTION]- (s:Ship) where insp.id in [{','.join([f"{i}" for i in filter_options.inspections])}] 
-        with s.name as name, insp match (insp) -[:HAS_FRAME]-> (i:Image) {get_findings_where_clause(filter_options, "WHERE")} 
+        with s.name as name, insp match (insp) -[:HAS_FRAME]-> (i:Frame) {get_findings_where_clause(filter_options, "WHERE")} 
         with name, coalesce(insp.ship_heading, 0) as ship_heading, insp.id as id, insp.date as date, (round((i.Heading - coalesce(insp.ship_heading, 0) + 180)/30)*30)%360 as heading 
         return name, id, date, ship_heading, heading, count(*) as count order by heading asc"""
 

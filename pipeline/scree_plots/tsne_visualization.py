@@ -58,11 +58,11 @@ def sanitize_infitinty(i):
 
 def get_vectors(inspection_id):
     im2vec = Img2Vec(cuda=True)
-    query = f"MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection{{id:{inspection_id}}}) RETURN n, i.id order by n.id asc"
+    query = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection{{id:{inspection_id}}}) RETURN n, i.id order by n.id asc"
     vecs = []
     imvecs = []
     with neo4j_transaction() as tx:
-        num_nodes = tx.run("MATCH (n:Image) RETURN count(n) as n")
+        num_nodes = tx.run("MATCH (n:Frame) RETURN count(n) as n")
         num_nodes = next(iter(num_nodes))['n']
         result = tx.run(query)
     # For each node, calculate vec

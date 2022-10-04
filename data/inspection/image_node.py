@@ -14,7 +14,7 @@ class MosaicNode(object):
 @dataclass
 class ImageNode(object):
 
-    label : str = dataclasses.field(default="Image", init=False)
+    label : str = dataclasses.field(default="Frame", init=False)
     id : str
     imo : str
     framenumber : str
@@ -38,7 +38,7 @@ class ImageNode(object):
             if label in self.objects:
                 setattr(self, f"{label}_detection", self.objects[label])
             if label in self.segmentation:
-                if self.segmentation[label] > 0: # At least some area of the image is detected to be the label. The threshold is set in the segmenter.
+                if self.segmentation[label] > 0.01: # At least a decent area of 1% of the image is detected to be the label. The threshold is set in the segmenter.
                     score += 1
                 setattr(self, f"{label}_segmentation", self.segmentation[label])
 

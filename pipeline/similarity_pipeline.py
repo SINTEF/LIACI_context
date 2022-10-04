@@ -32,8 +32,8 @@ def sanitize_infitinty(i):
 def delete_all_similarities(inspection_filter = None):
     with neo4j_transaction() as tx:
         if inspection_filter is not None:
-            tx.run(f"MATCH (c:Cluster) <-[:IN_CLUSTER]- (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DETACH DELETE c")
-            tx.run(f"MATCH (i2:Image) <-[r]- (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DELETE r")
+            tx.run(f"MATCH (c:Cluster) <-[:IN_CLUSTER]- (n:Frame) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DETACH DELETE c")
+            tx.run(f"MATCH (i2:Frame) <-[r]- (n:Frame) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] DELETE r")
         else:
             tx.run(f"MATCH () <-[r:SIMILAR_TO]- () DELETE r")
             tx.run(f"MATCH () <-[r:VISUALLY_SIMILAR_TO]- () DELETE r")
@@ -43,9 +43,9 @@ def do_similarity(inspection_filter = None):
 
     im2vec = Img2Vec(cuda=True)
     if inspection_filter is not None:
-        query = f"MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] RETURN n, i.id order by n.id asc"
+        query = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] RETURN n, i.id order by n.id asc"
     else:
-        query = f"MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
+        query = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
 
     py2neonodes = [] #Py2Neo Node instances. They can be merged to neo4j again.
     inspection_ids = [] #Inspection ID for each node instance, has same length as py2neonodes
@@ -62,7 +62,7 @@ def do_similarity(inspection_filter = None):
         imvecs_available = True
 
     with neo4j_transaction() as tx:
-        num_nodes = tx.run("MATCH (n:Image) RETURN count(n) as n")
+        num_nodes = tx.run("MATCH (n:Frame) RETURN count(n) as n")
         num_nodes = next(iter(num_nodes))['n']
         print(f"Found {num_nodes} nodes, quering all nodes...")
         result = tx.run(query)

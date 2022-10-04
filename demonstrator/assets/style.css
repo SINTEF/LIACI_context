@@ -26,7 +26,7 @@ body {
     bottom: 0;
 }
 .two_columns {
-    min-height: 760px;
+    min-height: 800px;
     flex: 1 1 auto;
     width: 100%;
     display: flex;
@@ -56,7 +56,7 @@ body {
     
     
     height: 80vh;
-    min-height: 760px;
+    min-height: 800px;
     overflow: auto;
 }
 
@@ -64,7 +64,7 @@ body {
     
     
     height: 80vh;
-    min-height: 760px;
+    min-height: 800px;
     overflow: auto;
     width: 70%;
     border: 1px solid lightgray;
@@ -76,7 +76,7 @@ body {
 
 .nodeInfo {
     height: 80vh;
-    min-height: 760px;
+    min-height: 800px;
     overflow: auto;
     width: 30%;
     border: 1px solid lightgray;

@@ -33,7 +33,7 @@ def plot_clusters():
 
     im2vec = Img2Vec(cuda=True)
 
-    query = "MATCH (n:Image) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
+    query = "MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
 
     py2neonodes = [] #Py2Neo Node instances. They can be merged to neo4j again.
     inspection_ids = [] #Inspection ID for each node instance, has same length as py2neonodes
@@ -50,7 +50,7 @@ def plot_clusters():
         imvecs_available = True
 
     with neo4j_transaction() as tx:
-        num_nodes = tx.run("MATCH (n:Image) RETURN count(n) as n")
+        num_nodes = tx.run("MATCH (n:Frame) RETURN count(n) as n")
         num_nodes = next(iter(num_nodes))['n']
         print(f"Found {num_nodes} nodes, quering all nodes...")
         result = tx.run(query)

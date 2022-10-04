@@ -1,6 +1,7 @@
 from typing import List
 import click
 import sys
+from computer_vision.LIACI_stitcher import demo
 from video_input.file_input import VideoFileFinder
 from video_input.inspection_video_input import InspectionVideoFile
 import similarity_pipeline
@@ -94,7 +95,12 @@ def similarities():
 
     similarity_pipeline.do_similarity(inspection_filter=selected_inspection_ids)
 
+@click.command()
+def stitcher_demo():
+    demo()
 
+
+messages.add_command(stitcher_demo)
 messages.add_command(list)
 messages.add_command(clear)
 messages.add_command(analyze)

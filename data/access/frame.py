@@ -65,7 +65,11 @@ def create(frame: ImageNode, inspection_node, classification_threshold=0.9):
         for k, v in frame.__dict__.items():
             if k in classlabel_to_vis:
                 if v > classification_threshold:
-                    classification_relation = py2neo.Relationship(frame_node, "DEPICTS", classlabel_to_node[k])
+                    results = {
+                        'segmentation': getattr(frame, f'{k}_segmentation', 0),
+                        'classification': getattr(frame, f'{k}_classification', 0)
+                    }
+                    classification_relation = py2neo.Relationship(frame_node, "DEPICTS", classlabel_to_node[k], **results)
                     tx.create(classification_relation)
 
         return frame_node

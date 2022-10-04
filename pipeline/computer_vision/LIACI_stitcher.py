@@ -8,7 +8,7 @@ from math import prod
 import imreg_dft as ird
 import numpy as np
 import cv2
-from computer_vision.LIACi_segmenter import LIACi_segmenter
+from computer_vision.LIACi_segmenter import LIACi_segmenter, blendImagesAlpha
 
 from pycocotools import mask
 
@@ -158,6 +158,27 @@ class Mosaic:
         if distance > 100: 
             #print("Distortion too big - stopping!")
             return False
+    
+        # dont warp to much overall...
+        warpiness = 0
+        for i in range(4):
+            c1 = transformed_corners[0][i]
+            c2 = transformed_corners[0][(i+1)%4]
+
+            warpiness += min(
+                abs(c1[0] - c2[0]), 
+                abs(c1[1] - c2[1])
+            )
+
+        if warpiness > 260:
+            return False 
+        
+        # for try out purposes: 
+        # showimage = np.array(self.output_img)
+        # self.draw_border(showimage, transformed_corners)
+        # cv2.imshow('preview',  showimage/255.)
+        # print(warpiness)
+            
       
         self.warp(self.frame_cur, self.H)
 
@@ -264,7 +285,8 @@ class Mosaic:
 
 
 def remove_black_borders(image):
-    y_nonzero, x_nonzero, _ = np.where(image != 255.)
+    color_top_left = image[0,0]
+    y_nonzero, x_nonzero, _ = np.where(image != color_top_left)
     return image[np.min(y_nonzero):np.max(y_nonzero), np.min(x_nonzero):np.max(x_nonzero)]
 
 class LIACI_Stitcher():
@@ -277,7 +299,7 @@ class LIACI_Stitcher():
 
         self.labels = labels
         if self.labels == None:
-            self.labels = ['paint_peel', 'marine_growth', 'corrosion', 'ship_hull']
+            self.labels = ['paint_peel', 'marine_growth', 'corrosion', 'ship_hull', 'sea_chest_grating', 'over_board_valve', ]
     
         self.number_of_frames = 0
         self.starting_point = np.array([0, 0])
@@ -298,13 +320,16 @@ class LIACI_Stitcher():
             if (x+ y) % 4 == 0:
                 diagonal[x][y] = 1
 
-        output_image = self.video_mosaic.output_img
+        output_image = np.array(self.video_mosaic.output_img)
+        seg_output_overlay = np.zeros(shape=(x_dim, y_dim, 3))
+        if 'ship_hull' in self.masks:
+            color = self.segmenter.get_color_for_label('ship_hull', True)
+            seg_output_overlay[self.masks['ship_hull'] > 0] = color 
+            seg_output_overlay[diagonal == 1] = (0,0,0) 
         for label, mask in self.masks.items():
-            seg_output_overlay = np.zeros(shape=(x_dim, y_dim, 3))
-            seg_output_overlay[mask > 0] = self.segmenter.get_color_for_label(label)
-            if label == "ship_hull":
-                seg_output_overlay[diagonal == 0] = (0,0,0)
-            output_image = cv2.addWeighted(output_image,1,seg_output_overlay,0.3,0)
+            if label != "ship_hull":
+                seg_output_overlay[mask > 0] = self.segmenter.get_color_for_label(label)
+        output_image = blendImagesAlpha(output_image,255,seg_output_overlay,90)
 
         cv2.imwrite(path, remove_black_borders(output_image))
 
@@ -374,9 +399,9 @@ class LIACI_Stitcher():
 
 
     
-if __name__ == "__main__":
+def demo():
     #video_source = 'C:\\Users\\marynaw\\data\\LIACi\\Videos\\Liaci Hull status\\2022-03-09_09.15.37.mp4'
-    video_source = '../Liaci Hull status/2022-03-09_09.15.37.mp4'
+    video_source = '/home/joseph/liaci/6 1257 Gann/2021-11-30_12.46.08.mp4'
     video_capture = cv2.VideoCapture(video_source)
     START_FRAME = int(video_capture.get(cv2.CAP_PROP_FPS)*(2*60+49))+335
     NUM_OF_FRAMES = 500
@@ -396,7 +421,7 @@ if __name__ == "__main__":
     # cv2.imshow('matches', stitched)
     # cv2.waitKey(0)
 
-    segmenter = LIACi_segmenter.LIACi_segmenter()
+    segmenter = LIACi_segmenter()
     is_first_frame = True
     
     number_of_frames = 0
@@ -424,7 +449,7 @@ if __name__ == "__main__":
         if number_of_frames > 2:
             number_of_stitched_frames = i-local_start_frame
             # if the mosaic is worth saving
-            if number_of_stitched_frames>=10:
+            if False:#number_of_stitched_frames>=10:
                 cv2.imwrite("mosaic_{}_{}_d{}.jpg".format(local_start_frame,i,FRAME_STEP), video_mosaic.output_img)
                 cv2.imwrite("seg_mosaic_{}_{}_d{}.jpg".format(local_start_frame,i,FRAME_STEP), seg_output_img)
             is_first_frame = True  
@@ -456,8 +481,8 @@ if __name__ == "__main__":
                 frame_cur_seg_mg, video_mosaic.H, (video_mosaic.output_img.shape[1], video_mosaic.output_img.shape[0]), flags=cv2.INTER_CUBIC)
         seg_output_img[warped_seg_img_mg > 0] = segmenter.COLORS[4]
        
-        cv2.imshow('output_seg',  seg_output_img/255.)
         
+        cv2.imshow('preview',  remove_black_borders(video_mosaic.output_img/255.))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

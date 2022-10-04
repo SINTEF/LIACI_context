@@ -33,6 +33,16 @@ def blendImages(background, foreground):
     output[:,:,3] = (1 - (1 - alpha_foreground) * (1 - alpha_background)) * 255
     return output
 
+def blendImagesAlpha(background, alpha_back, foreground, alpha_fore):
+    background = cv2.cvtColor(np.array(background).astype('float32'), cv2.COLOR_RGB2RGBA) 
+    background[:,:,3] = alpha_back
+
+    foreground = cv2.cvtColor(np.array(foreground).astype('float32'), cv2.COLOR_RGB2RGBA) 
+    foreground[:,:,3] = alpha_fore
+
+    return blendImages(background, foreground)
+    
+
 
 class LIACi_segmenter():
     """Class for semantic segmentation
@@ -75,9 +85,10 @@ class LIACi_segmenter():
         # onnxruntime inference 
         self.sess = rt.InferenceSession(MODEL_FILENAME, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 
-    def get_color_for_label(self, label):
+    def get_color_for_label(self, label, inBgr = False):
         label_to_color = {l: i for i, l in enumerate(self.labels)}
-        return self.COLORS[label_to_color[label]]
+        color = self.COLORS[label_to_color[label]]
+        return (color[2],color[1],color[0]) if inBgr else color
     
 
     # Draw the predicted bounding box, colorize and show the mask on the image

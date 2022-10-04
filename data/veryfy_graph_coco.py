@@ -44,7 +44,7 @@ def get_color_map():
 if __name__ == "__main__":
     with neo4j_transaction() as tx:
         mid = 'm300.3875.0'
-        query = "MATCH (m:Mosaic{id:$mid}) WITH m MATCH (m:Mosaic) <-[r:IN_MOSAIC]- (f:Image) return m, r, f"
+        query = "MATCH (m:Mosaic{id:$mid}) WITH m MATCH (m:Mosaic) <-[r:IN_MOSAIC]- (f:Frame) return m, r, f"
         result = tx.run(query, mid=mid)
 
         stiched_image = None
