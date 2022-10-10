@@ -7,6 +7,7 @@
 
 
 
+
         {
             "name": "Launch app",
             "cwd": "${workspaceFolder}/demonstrator",
@@ -24,6 +25,17 @@
             "request": "launch",
             "program": "main.py",
             "args": ["analyze", "../../"],
+            "cwd": "${workspaceFolder}/pipeline",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "clear nodes",
+            "python": "/usr/bin/python",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "args": ["clear", "nodes"],
             "cwd": "${workspaceFolder}/pipeline",
             "console": "integratedTerminal",
             "justMyCode": true
@@ -60,5 +72,13 @@
             "console": "integratedTerminal",
             "justMyCode": true
         }
-    ]
+    ],
+    "inputs": [
+        {
+          "id": "cla",
+          "type":"promptString",
+          "description": "args for the program",
+          "default": "--help"
+        },
+      ]
 }

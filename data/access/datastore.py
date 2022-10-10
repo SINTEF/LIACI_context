@@ -25,12 +25,6 @@ def find_classification_node(visCode, imo):
     query = f"MATCH (c{{visCode: '{visCode}'}}) <-[HAS*]- (s:Ship{{imo: '{imo}'}}) RETURN c"
     with neo4j_transaction() as tx:
         return tx.graph.evaluate(query)
-        results = tx.run(query)
-        results = [i['c'] for i in results]
-        if len(results) == 1:
-            py2neoNode = find_node(_id = results[0].identity)
-            return py2neoNode
-    return None
 
 class neo4j_transaction(object):
     def __init__(self) -> None:
@@ -56,3 +50,9 @@ def liaci_graph(username="neo4j", password="liaci", host="localhost", port="7687
 
 def delete_all_neo4j_database():
     liaci_graph().delete_all()           
+
+def delete_from_neo4j(inspections):
+    for i in inspections:
+        query = f"MATCH (i:Inspection{{id:{i}}}) -[:HAS_FRAME]- (f) -[]- (o) where not o:Classification  DETACH delete i, f, o"
+        with neo4j_transaction() as tx:
+            tx.run(query)

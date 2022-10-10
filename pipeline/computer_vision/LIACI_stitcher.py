@@ -11,6 +11,8 @@ import cv2
 from computer_vision.LIACi_segmenter import LIACi_segmenter, blendImagesAlpha
 
 from pycocotools import mask
+import logging
+logger = logging.getLogger('stitcher')
 
 class Mosaic:
     def __init__(self, first_image, output_height_times=5, output_width_times=5, detector_type="sift"):
@@ -149,6 +151,7 @@ class Mosaic:
         if self.H is None:
             return False        
 
+        logger.debug("Could find homography for frame.")
         self.H = np.matmul(self.H_old, self.H)
 
         # check if the reference point is too far away after transformation
@@ -156,7 +159,7 @@ class Mosaic:
         transformed_corners = self.get_transformed_corners(self.frame_cur, self.H, self.output_img)
         distance = np.linalg.norm(transformed_corners_old - transformed_corners)
         if distance > 100: 
-            #print("Distortion too big - stopping!")
+            logger.debug("Distortion too big - stopping!")
             return False
     
         # dont warp to much overall...
@@ -171,6 +174,7 @@ class Mosaic:
             )
 
         if warpiness > 260:
+            logger.debug("Overall warpiness too big - stopping!")
             return False 
         
         # for try out purposes: 
@@ -314,6 +318,7 @@ class LIACI_Stitcher():
 
 
     def store_mosaic_seg(self, path):
+        logger.debug("Storing segmented mosaic image...")
         x_dim, y_dim = self.get_dimensions()
         diagonal = np.zeros((x_dim, y_dim), np.uint8)
         for x, y in np.ndindex(diagonal.shape):
@@ -332,6 +337,7 @@ class LIACI_Stitcher():
         output_image = blendImagesAlpha(output_image,255,seg_output_overlay,90)
 
         cv2.imwrite(path, remove_black_borders(output_image))
+        logger.debug("Done. stored segmented mosaic image...")
 
     def store_mosaic(self, path):
         output_image = self.video_mosaic.output_img
@@ -366,6 +372,7 @@ class LIACI_Stitcher():
         self.segmenter.image = frame_cur
         seg_results = self.segmenter.segment_unet()
         if self.is_first_frame:
+            logger.debug("Is first frame, creating new Mosaic")
             self.video_mosaic = Mosaic(frame_cur, detector_type="sift")           
             self.is_first_frame = False
             self._initialize_masks()
@@ -373,6 +380,7 @@ class LIACI_Stitcher():
 
         # process each frame
         ret_val = self.video_mosaic.process_frame(frame_cur)
+        logger.debug(f"The mosaic has processed the frame with the return value {ret_val}")
 
         if not ret_val:
             self.is_first_frame = True

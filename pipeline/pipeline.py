@@ -6,9 +6,10 @@ from statistics import mean, median, stdev, variance
 from typing import List
 import time
 
+import logging
+logger = logging.getLogger('pipeline')
 
 from PIL import Image
-os.environ["OPENCV_LOG_LEVEL"]="SILENT"
 import cv2
 from matplotlib.image import thumbnail
 
@@ -35,13 +36,12 @@ import data.access.inspection as inspection_access
 
 def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> None:
 
+    logger.info(f"Started inspection analysis for video file {inspection_video.video_file}")
+
     statistics = {}
     start_time = time.perf_counter()
     count = 0
     try:
-        print(f"Running pipeline for inspection {inspection_video.video_file}")
-        print(f"Enabled modules:")
-
         if anonymize_name:
             inspection_video.anonymize_name()
 
@@ -71,6 +71,7 @@ def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> 
 
         for tele, frame_array in inspection_video:
             count += 1
+            logger.debug(f"Processing frame {count}")
 
             if frame_array is None:
                 continue
@@ -83,6 +84,7 @@ def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> 
 
             # Do this every /*30*/ frames!
             if (count - 1) % 30 == 0:
+                logger.debug(f"Frame {count} will be stored as Frame node...")
                 percent = count * 100 / inspection_video.frame_count
                 seconds = time.time() - start_seconds
                 fps = count / seconds
@@ -122,6 +124,7 @@ def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> 
                 neo4jnode = frame_access.create(image_node, inspection_node, classification_threshold=0.9)
 
                 node_creation_done = time.perf_counter()
+                logger.debug(f"Stored frame {count}")
 
                 statistics['store frame to disk'] = statistics.get('store frame to disk', [])+[time_store_frame - start]
                 statistics['classifier'] = statistics.get('classifier', [])+[classification_done - time_store_frame]
@@ -132,22 +135,27 @@ def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> 
                     
 
             if mosaic_node is None:
+                logger.debug(f"Mosaic was stored or aborted with last frame, creating a new one...")
                 mosaic_node = frame_access.create_mosaic(MosaicNode("m" + frame_id))
                 mosaic_node['start_frame'] = frame_number
 
 
             #Try to stitch, create relations to stitched image if successful
             stich_start = time.perf_counter()
+            logger.debug("Running stitcher.next_frame:")
             stich_result = stitcher.next_frame(frame_array)
             stich_end = time.perf_counter()
 
             statistics['stitcher next frame'] = statistics.get('stitcher next frame', [])+[stich_end - stich_start]
 
             if stich_result is None:
+                logger.debug("Stitcher returned None, evaluating Mosaic...")
                 stich_store_start = time.perf_counter()
                 if stitcher.number_of_frames < 180 and stitcher.get_size_increase() < 1.5:
+                    logger.debug("Mosaic is bad, discarding mosaic")
                     frame_access.delete_mosaic(mosaic_node)
                     continue
+                logger.debug("Mosaic is good, updating final data")
                 cocos = stitcher.get_coco()
                 for l in stitcher.labels:
                     mosaic_node[f'{l}_coco_size'] = cocos[l]['size']
@@ -171,6 +179,8 @@ def store_inspection(inspection_video: InspectionVideo, anonymize_name=True) -> 
                 frame_access.merge_node(mosaic_node)
 
                 stich_store_end = time.perf_counter()
+
+                logger.debug("Mosaic updated")
                 statistics['stitcher store frame'] = statistics.get('stitcher store frame', [])+[stich_store_end - stich_store_start]
                 mosaic_node = None
             else:

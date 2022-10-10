@@ -1,8 +1,10 @@
 import json
-from dash import dcc, Input, Output, State, html, dash_table, ALL
+import re
+from dash import dcc, Input, Output, State, html, dash_table, ALL, callback_context
 import dash_cytoscape as cyto
 import plotly.express as px
 from plotly import graph_objects as go
+
 
 from data_manager import FilterOptions, get_frames_angle, get_headings_hist
 
@@ -31,22 +33,17 @@ def register_callback(app):
         Input(component_id={'type':'heading_graph', 'index': ALL}, component_property='clickData'),
     )
     def update_nodes_table(filter_store, click_data):
-        filter_options = FilterOptions(**filter_store)
-        if not hasattr(update_nodes_table, 'old_data'):
-            update_nodes_table.old_data = click_data
-        
-        changed = None
-        changed_angle = None
-        for i, d in enumerate(click_data):
-            if d is not None and (i >= len(update_nodes_table.old_data) or json.dumps(d) != json.dumps(update_nodes_table.old_data[i])):
-                changed = g_to_inspection[i]
-                changed_angle = d['points'][0]['theta']
 
-        if changed is not None:
-           frames = get_frames_angle(changed, (changed_angle + 360) % 360, filter_options) 
-           return [html.Img(src=f"/assets/imgs/{'mosaics' if f['path'].startswith('m') else 'frames'}/{f['path']}", style={'width':'100%'}) for f in frames]
+        if callback_context.triggered[0]['value'] is None or callback_context.triggered[0]['prop_id'] == '.':
+            return "Select sector to show frames"
+        else:
+            changed = json.loads(re.findall('{.*?}', callback_context.triggered[0]['prop_id'])[0])['index']
+            changed_angle = callback_context.triggered[0]['value']['points'][0]['theta']
 
-        update_nodes_table.old_data = click_data
+            filter_options = FilterOptions(**filter_store)
+            frames = get_frames_angle(changed, (changed_angle + 360) % 360, filter_options) 
+            return [html.Img(src=f"/assets/imgs/{'mosaics' if f['path'].startswith('m') else 'frames'}/{f['path']}", style={'width':'100%'}) for f in frames]
+
         return "Select sector to show frames"
     
     @app.callback(

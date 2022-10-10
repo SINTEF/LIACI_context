@@ -44,8 +44,10 @@ def do_similarity(inspection_filter = None):
     im2vec = Img2Vec(cuda=True)
     if inspection_filter is not None:
         query = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] RETURN n, i.id order by n.id asc"
+        query_number = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) WHERE i.id in [{','.join(inspection_filter)}] return count(n) as n"
     else:
         query = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) RETURN n, i.id order by n.id asc"
+        query_number = f"MATCH (n:Frame) <-[:HAS_FRAME]- (i:Inspection) RETURN count(n) as n"
 
     py2neonodes = [] #Py2Neo Node instances. They can be merged to neo4j again.
     inspection_ids = [] #Inspection ID for each node instance, has same length as py2neonodes
@@ -62,7 +64,7 @@ def do_similarity(inspection_filter = None):
         imvecs_available = True
 
     with neo4j_transaction() as tx:
-        num_nodes = tx.run("MATCH (n:Frame) RETURN count(n) as n")
+        num_nodes = tx.run(query_number)
         num_nodes = next(iter(num_nodes))['n']
         print(f"Found {num_nodes} nodes, quering all nodes...")
         result = tx.run(query)

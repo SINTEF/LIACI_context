@@ -114,7 +114,6 @@ class InspectionVideo:
     def anonymize_name(self):
         self.metadata.ship_name = random_name()
 
-# TODO Make that better e.g. with zip and then the ranges thing
     
     def __iter__(self):
         self.current_frame = 0

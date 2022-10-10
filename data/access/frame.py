@@ -28,7 +28,7 @@ def create_mosaic(mosaic: MosaicNode):
             tx.create(mosaic_node)
     return mosaic_node
 
-def create(frame: ImageNode, inspection_node, classification_threshold=0.9):
+def create(frame: ImageNode, inspection_node):
 
     inspection_node = find_node(LiInspection().label, id=frame.inspection_id)
     if not inspection_node:
@@ -64,7 +64,7 @@ def create(frame: ImageNode, inspection_node, classification_threshold=0.9):
 
         for k, v in frame.__dict__.items():
             if k in classlabel_to_vis:
-                if v > classification_threshold:
+                if v:
                     results = {
                         'segmentation': getattr(frame, f'{k}_segmentation', 0),
                         'classification': getattr(frame, f'{k}_classification', 0)

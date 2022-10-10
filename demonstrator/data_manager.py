@@ -70,7 +70,7 @@ def get_graph_stuff(filter_options):
     part_of_ship = set()
     
     LIMIT = 300
-    if len(filter_options.inspections) == 0: return {}
+    if len(filter_options.inspections) == 0: return ({}, [],[],[],[],[],[],[])
     graph_images = _q_images_and_inspections(filter_options)
     query1 = f"""{graph_images} RETURN  i, ins ORDER BY i.id LIMIT {LIMIT}"""
     with neo4j_transaction() as tx:
