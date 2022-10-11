@@ -46,11 +46,11 @@ PATH Path to the video files. All subfolders will be searched. Inspections need 
 
 @click.command()
 @click.argument('what', type=click.Choice(['similarities', 'nodes']), )
-@click.option('--all', is_flag = True)
+@click.option('--all', help="Use faster queries for deleting all inspections.", is_flag = True)
 def clear(what, all):
     """Delete whole inspections or similarities and clusters of inspections from the neo4j database.
 
-WHAT Choose nodes for whole inspections and similarities to only delete clusters and similarities."""
+{similarities|nodes} Choose nodes for whole inspections and similarities to only delete clusters and similarities."""
     if 'similarities' == what:
         clear_similarities(all)
     if 'nodes' == what:

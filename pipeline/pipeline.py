@@ -9,7 +9,6 @@ import time
 import logging
 logger = logging.getLogger('pipeline')
 
-from PIL import Image
 import cv2
 from matplotlib.image import thumbnail
 

@@ -177,11 +177,6 @@ class Mosaic:
             logger.debug("Overall warpiness too big - stopping!")
             return False 
         
-        # for try out purposes: 
-        # showimage = np.array(self.output_img)
-        # self.draw_border(showimage, transformed_corners)
-        # cv2.imshow('preview',  showimage/255.)
-        # print(warpiness)
             
       
         self.warp(self.frame_cur, self.H)
@@ -409,9 +404,9 @@ class LIACI_Stitcher():
     
 def demo():
     #video_source = 'C:\\Users\\marynaw\\data\\LIACi\\Videos\\Liaci Hull status\\2022-03-09_09.15.37.mp4'
-    video_source = '/home/joseph/liaci/6 1257 Gann/2021-11-30_12.46.08.mp4'
+    video_source = '/home/joseph/liaci/Liaci Hull status/2022-03-09_09.15.37.mp4'
     video_capture = cv2.VideoCapture(video_source)
-    START_FRAME = int(video_capture.get(cv2.CAP_PROP_FPS)*(2*60+49))+335
+    START_FRAME = int(video_capture.get(cv2.CAP_PROP_FPS)*(34*60+50))
     NUM_OF_FRAMES = 500
 
     # there is also an image stitcher in openCV but it is hard to configure
@@ -489,8 +484,12 @@ def demo():
                 frame_cur_seg_mg, video_mosaic.H, (video_mosaic.output_img.shape[1], video_mosaic.output_img.shape[0]), flags=cv2.INTER_CUBIC)
         seg_output_img[warped_seg_img_mg > 0] = segmenter.COLORS[4]
        
+        showimage = np.array(video_mosaic.output_img)
+        transformed_corners = video_mosaic.get_transformed_corners(video_mosaic.frame_cur, video_mosaic.H, video_mosaic.output_img)
+        video_mosaic.draw_border(showimage, transformed_corners)
+        cv2.imshow('preview',  showimage/255.)
         
-        cv2.imshow('preview',  remove_black_borders(video_mosaic.output_img/255.))
+        #cv2.imshow('preview',  remove_black_borders(video_mosaic.output_img/255.))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

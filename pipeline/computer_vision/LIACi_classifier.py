@@ -30,7 +30,8 @@ class LIACi_classifier():
         # onnxruntime inference 
         self.sess = rt.InferenceSession(MODEL_FILENAME, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 
-    def classify(self):        
+    def classify(self, image=None):        
+        self.image = image if image is not None else self.image
         # Get the input name and shape of the model
         input_name = self.sess.get_inputs()[0].name
         h,w = self.sess.get_inputs()[0].shape[2:]
@@ -44,7 +45,7 @@ class LIACi_classifier():
         scores = list(out[1][0].values())
         return scores
 
-    def classify_dict(self, frame):
-        self.image = frame
+    def classify_dict(self, image=None):
+        self.image = image if image is not None else self.image
         result = self.classify()
         return {key: value for key, value in zip(self.labels, result)}
