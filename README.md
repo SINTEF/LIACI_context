@@ -19,3 +19,13 @@ Please refer to the readmes of the respective directories for further informatio
 [/demonstrator](demonstrator)|Web application containing different kinds of visulizations on the data of the knowledge graph
 [/pipeline](pipeline)|- Inference pipeline for data enrichment with computer vision models<br>- Contextualization pipeline to find similarities and semantic clusters in the inspection video frames
 
+## Architecture
+The architecture follows a four layer achritecture as suggested for knowledge graph data contextualization applications [in this paper](https://ieeexplore.ieee.org/document/9779654) by Waszak et al.
+It consists of the following layers
+
+|Layer|task(s)|technology|where in this repo|
+|-|-|-|-|
+|**Presentation**|Presenting the data to the user such that additional knowledge and value is created|![plotly dash framework](https://raw.githubusercontent.com/plotly/dash/dev/components/dash-table/tests/selenium/assets/logo.png)|[/demonstrator](./demonstrator/)|
+|**Application**|API for data storage and retrieval|<img width=50px, src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="python"/> <img src="https://py2neo.org/2021.1/_static/py2neo-2018.291x50.png" width=100px alt="py2neo"/>|[/data/access](./data/access/)|
+|**Business**|Business logic of the inference pipeline, machine learning models, computer vision, data contextualization|<img width=50px, src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" alt="python"/> <img height=50px, src="https://raw.githubusercontent.com/microsoft/onnxruntime/main/docs/images/ONNX_Runtime_logo_dark.png" alt="onnx"/> <img src="https://opencv.org/wp-content/uploads/2020/07/OpenCV_logo_black_.png" height=50px alt="cv2"/>|[/pipeline](./pipeline/)|
+|**Data**|Data persistande, domain model|![neo4j graph database](https://dist.neo4j.com/wp-content/uploads/20210423072428/neo4j-logo-2020-1.svg)|[/data/vismodel](./data/vismodel/), [/data/inspection](./data/inspection/)<br> and the neo4j database|

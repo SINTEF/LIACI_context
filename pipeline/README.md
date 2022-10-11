@@ -168,6 +168,7 @@ $ python main.py list ../..
 ### stitcher-demo
 Implemented for demonstration purposes only. If you want to run this, you need to change a path in LIACI_stitcher.py.
 Produces beautiful outputs like the following:
+
 ![stitcher demo](../doc/sd.gif)
 
 ## pipeline.py
