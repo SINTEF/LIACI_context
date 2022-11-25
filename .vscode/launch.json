@@ -62,16 +62,6 @@
             "console": "integratedTerminal",
             "justMyCode": true
         }
-        {
-            "name": "verify_stich",
-            "python": "/usr/bin/python",
-            "type": "python",
-            "request": "launch",
-            "program": "veryfy_graph_coco.py",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        }
     ],
     "inputs": [
         {
