@@ -98,7 +98,6 @@ def get_graph_stuff(filter_options):
             image1_id = f"im_{image1}"
             image2_id = f"im_{image2}"
             similar_to.add((image1_id, image2_id))
-            #sim_hist.append(distance)
 
         cursor = tx.run(query3)
         results = [(r['i'], r['i2']) for r in cursor]
@@ -106,7 +105,6 @@ def get_graph_stuff(filter_options):
             image1_id = f"im_{image1}"
             image2_id = f"im_{image2}"
             visually_similar_to.add((image1_id, image2_id))
-            #vsim_hist.append(distance)
 
 
 
@@ -159,22 +157,9 @@ def get_graph_stuff(filter_options):
             shows_part.add((image_id, part_id))
             part_of_ship.add((part_id, ship_id))
 
-# 'nodes': {},
-# 'similar_to': [],
-# 'visually_similar_to': [],
-# 'in_inspection': [],
-# 'in_mosaic': [],
-# 'in_cluster': [],
-# 'shows_part': [],
-# 'part_of_ship': [],
 
     return (nodes, similar_to, visually_similar_to, in_inspection, in_mosaic, in_cluster, shows_part, part_of_ship)
 
-# 'q_hist': [],
-# 'd_hist': [],
-# 'mg_hist': [],
-# 'sim_hist': [],
-# 'vsim_hist': [],
 def get_histogram_data(filter_options:FilterOptions):
 
     q_hist = []
@@ -213,7 +198,6 @@ def get_histogram_data(filter_options:FilterOptions):
 
 
 
-# 'heading_hist': {},
 def get_headings_hist(filter_options):
     heading_hist = {}
     query_headings = f"""match (insp:Inspection) <-[:HAS_INSPECTION]- (s:Ship) where insp.id in [{','.join([f"{i}" for i in filter_options.inspections])}] 
@@ -236,8 +220,6 @@ def get_headings_hist(filter_options):
     
     return heading_hist
 
-# 'by_ship_table': [],
-# 'by_part_table': [],
 def get_tables(filter_options):
     images_and_inspections = _q_images_and_inspections(filter_options)
     query6 = f"""{images_and_inspections} WITH i, ins MATCH (ins) <-[:HAS_INSPECTION]- (s:Ship) 
@@ -266,7 +248,6 @@ def get_tables(filter_options):
     return table_ships, table_parts
 
 
-# 'clusters_table': []
 def get_cluster_table(filter_options):
     images_and_inspections = _q_images_and_inspections(filter_options)
     query_clusters = f"""{images_and_inspections} WITH ins.id as inspection_id, i 

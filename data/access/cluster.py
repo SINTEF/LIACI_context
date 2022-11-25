@@ -5,10 +5,12 @@ from data.inspection.image_node import ImageNode, MosaicNode
 from data.vismodel.LiShip import LiShip
 from data.inspection.LiInspection import LiInspection
 from py2neo.matching import NodeMatcher
-
-
 import py2neo
 
+"""
+Searches the database for the cluster node with the given id. If it does not exist,
+the cluster node is created. Then the frame node is attached to the cluster with
+a IN_CLUSTER relation."""
 def create_or_attach(frame: py2neo.Node, cluster_id: str, cluster_number: int):
     cluster_node = find_node(ClusterNode(cluster_id).label, id=cluster_id)
     if cluster_node is None:
