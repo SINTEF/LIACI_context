@@ -85,8 +85,6 @@ def do_similarity(inspection_filter = None):
 
     #   Telemetry stuff
             vec = [
-                #sanitize_infitinty(n[field]) for field in 'Depth.Heading.Camera Tilt.Pitch.Roll.framenumber.anode.bilge_keel.corrosion.defect.marine_growth.over_board_valve.paint_peel.propeller.sea_chest_grating'.split('.')
-                #sanitize_infitinty(n[field]) for field in 'Depth.Heading.Camera Tilt.framenumber'.split('.')
                 sanitize_infitinty(n['Depth']),
                 math.sin(float(n['Heading']) * 2 * math.pi / 360),
                 math.cos(float(n['Heading']) * 2 * math.pi / 360),
@@ -147,9 +145,6 @@ def do_similarity(inspection_filter = None):
 
         a = np.array(vectors)
 
-        # scaler = StandardScaler()
-        # a = scaler.fit_transform(a)
-    
         dbscan = DBSCAN(eps = 61.4, min_samples=5)
         dbscan_clusters[inspection] = dbscan.fit_predict(a)
         print(f"found {np.max(dbscan_clusters[inspection]) + 1} clusters for in spection {inspection}")

@@ -68,7 +68,6 @@ class LIACi_segmenter():
             for l in lf:
                 self.labels.append(l.strip())   
 
-        #self.COLORS = np.random.randint(0, 255, size=(len(self.labels), 3),dtype="uint8")
         self.COLORS =  [    
                         ImageColor.getrgb("cyan"),   
                         ImageColor.getrgb("orange"),
@@ -182,12 +181,10 @@ class LIACi_segmenter():
         blob = cv2.dnn.blobFromImage(self.image, 1/255.,(w_n, h_n), swapRB=True)
         start = time.perf_counter()
         blob = np.transpose(blob, (0, 2, 3, 1))
-        #plt.imshow(blob[0,:,:,:])
         #Running the session by passing in the input data of the model
         out = self.sess.run(None, {input_name: blob})
         end = time.perf_counter()
         inference_time = end - start
-        # print("onnx segmentation:  "+str(inference_time))
         
         # postprocess onnx output
         masks = np.squeeze(out)
@@ -205,12 +202,10 @@ class LIACi_segmenter():
         blob = cv2.dnn.blobFromImage(self.image, 1/255.,(w_n, h_n), swapRB=True)
         start = time.perf_counter()
         blob = np.transpose(blob, (0, 2, 3, 1))
-        #plt.imshow(blob[0,:,:,:])
         #Running the session by passing in the input data of the model
         out = self.sess.run(None, {input_name: blob})
         end = time.perf_counter()
         inference_time = end - start
-        # print("onnx segmentation:  "+str(inference_time))
         
         # postprocess onnx output
         masks = np.squeeze(out)
@@ -253,7 +248,6 @@ class LIACi_segmenter():
         out = self.sess.run(None, {input_name: blob})
         end = time.time()
         inference_time = end - start
-        # print("onnx segmentation:  "+str(inference_time))
         
         # postprocess onnx output
         scores = list(out[2])
@@ -307,9 +301,6 @@ def write_labels_to_video(video_url):
         frame = cap.read()[1]
         my_segmenter.image = frame
         outputs = my_segmenter.segment_unet()
-        #frame = cv2.resize(frame, NEW_FRAME_SIZE)
-        #cv2.imshow("Image", my_segmenter.image)
-        #cv2.waitKey(0) 
         out.write(my_segmenter.image)
             
         print('write label frame: '+str(i))
@@ -327,10 +318,6 @@ if __name__ == '__main__':
     print(f"RGB values for labels:")
     for l, rgb in zip(my_segmenter.labels, my_segmenter.COLORS):
         print(f"  {l:<20}: {rgb}")
-    # show the output image
-    #cv2.imshow("Segmented by class", my_segmenter.image_class)
-    # cv2.imshow("Segmented by inpsection criteria", my_segmenter.image_inspc)
-    # cv2.waitKey(0)
 
     if len(sys.argv) > 2 and '-s' == sys.argv[2]:
         cv2.imwrite(f"{sys.argv[3]}/{os.path.basename(IMAGE_FILENAME)}", image_in)

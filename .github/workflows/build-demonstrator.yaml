@@ -1,5 +1,10 @@
-name: Create and publish a Docker image
+# This workflow builds three images:
+# - An image for a container that is exposing the web application (liaci-context)
+# - An image for an initialization container for the web application that is downloading the assets from a blob storage
+# - An image for an initialization container for the neo4j database that is downloading a database dump and restoring it 
+#   to the a volume which can later be used by neo4j
 
+name: Create and publish a Docker image
 on:
   release:
     types: [published]

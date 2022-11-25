@@ -8,3 +8,4 @@ pipeline/image_vectors_pickle.pyp
 api
 demonstrator/deployment/demonstrator-init/data_test
 pipeline/statistics/
+pipeline/scree_plots/

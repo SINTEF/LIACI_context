@@ -103,7 +103,6 @@ class Mosaic:
                         matches.append(m)
             except ValueError:
                 pass
-                #print("pair_matches are not valid...")
 
         elif self.detector_type == "orb":
             matches = self.bf.match(des_cur, des_prev)
@@ -133,12 +132,8 @@ class Mosaic:
         self.kp_cur, self.des_cur = self.detector.detectAndCompute(frame_gray_cur, None)
 
         self.matches = self.match(self.des_cur, self.des_prev)
-        #self.matches = []
         if len(self.matches) < 4:  
-            #print("unsufficient features - return")
-            #return False         
             self.H = self.match_with_phase_corr(frame_gray_cur, frame_gray_past)
-            #print("unsufficient features - doing phase correlation")
         else:
             self.H = self.findHomography(self.kp_cur, self.kp_prev, self.matches)
 
@@ -146,7 +141,6 @@ class Mosaic:
         # we can use phase correlation
         if self.H is None and frame_gray_past is not None:
             self.H = self.match_with_phase_corr(frame_gray_cur, frame_gray_past)
-            #print("bad homography - doing phase correlation")
 
         if self.H is None:
             return False        
@@ -260,9 +254,6 @@ class Mosaic:
         transformed_corners = cv2.perspectiveTransform(corners, H)
         corners = np.array([[corner_0, corner_1, corner_2, corner_3]])
         transformed_corners = np.array(transformed_corners, dtype=np.int32)
-        #mask = np.zeros(shape=(output_img.shape[0], output_img.shape[1], 1))
-        #cv2.fillPoly(mask, transformed_corners, color=(1, 0, 0))
-        #cv2.imshow('mask', mask)
 
         return transformed_corners
 
@@ -409,20 +400,6 @@ def demo():
     START_FRAME = int(video_capture.get(cv2.CAP_PROP_FPS)*(34*60+50))
     NUM_OF_FRAMES = 500
 
-    # there is also an image stitcher in openCV but it is hard to configure
-    # images = []
-    # for i in range(START_FRAME,START_FRAME+NUM_OF_FRAMES,5):
-    #     video_capture.set(cv2.CAP_PROP_POS_FRAMES, i)
-    #     # Capture frame-by-frame
-    #     _, frame = video_capture.read() 
-    #     NEW_FRAME_SIZE = (int(frame.shape[1]/4), int(frame.shape[0]/4))       
-    #     frame_cur = cv2.resize(frame, NEW_FRAME_SIZE)  
-    #     images.append(frame_cur)
-
-    # stitcher = cv2.Stitcher_create() 
-    # (status, stitched) = stitcher.stitch(images)
-    # cv2.imshow('matches', stitched)
-    # cv2.waitKey(0)
 
     segmenter = LIACi_segmenter()
     is_first_frame = True
@@ -476,7 +453,6 @@ def demo():
                 mask_mg = np.reshape(value['mask']['mask_array'], (value['mask']['height'],value['mask']['width'])).astype(np.uint8)
                 frame_cur_seg_mg = cv2.bitwise_or(frame_cur_seg_mg, mask_mg)           
 
-        #@todo: do not overwrite the previous mask but make an OR        
         warped_seg_img_sh = cv2.warpPerspective(
                 frame_cur_seg_sh, video_mosaic.H, (video_mosaic.output_img.shape[1], video_mosaic.output_img.shape[0]), flags=cv2.INTER_CUBIC)
         seg_output_img[warped_seg_img_sh > 0] = segmenter.COLORS[9]
@@ -489,7 +465,6 @@ def demo():
         video_mosaic.draw_border(showimage, transformed_corners)
         cv2.imshow('preview',  showimage/255.)
         
-        #cv2.imshow('preview',  remove_black_borders(video_mosaic.output_img/255.))
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
