@@ -3,7 +3,7 @@ onnxruntime-gpu==1.12.1
 Pillow==9.1.1
 ass==0.5.2
 pandas==1.4.2
-scipy==1.8.0
+scipy==1.10.0
 matplotlib==3.5.2
 py2neo==2021.2.3
 scikit-learn==1.0.2
